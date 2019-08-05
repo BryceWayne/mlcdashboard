@@ -1,7 +1,8 @@
 import logging
 
 from flask import Flask
-
+from bokeh.embed import server_document
+script = server_document("https://demo.bokeh.org/sliders")
 
 app = Flask(__name__)
 
