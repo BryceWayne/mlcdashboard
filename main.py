@@ -1,24 +1,27 @@
-from flask import Flask, render_template
+import logging
 
-from bokeh.client import pull_session
-from bokeh.embed import server_session
+from flask import Flask
+
 
 app = Flask(__name__)
 
-@app.route('/', methods=['GET'])
-def bkapp_page():
 
-    # pull a new session from a running Bokeh server
-    with pull_session(url="http://localhost:5006/sliders") as session:
+@app.route('/')
+def hello():
+    """Return a friendly HTTP greeting."""
+    return 'Hello World!'
 
-        # update or customize that session
-        session.document.roots[0].children[1].title.text = "Special Sliders For A Specific User!"
 
-        # generate a script to load the customized session
-        script = server_session(session_id=session.id, url='http://localhost:5006/sliders')
+@app.errorhandler(500)
+def server_error(e):
+    logging.exception('An error occurred during a request.')
+    return """
+    An internal error occurred: <pre>{}</pre>
+    See logs for full stacktrace.
+    """.format(e), 500
 
-        # use the script in the rendered page
-        return render_template("embed.html", script=script, template="Flask")
 
 if __name__ == '__main__':
+    # This is used when running locally. Gunicorn is used to run the
+    # application on Google App Engine. See entrypoint in app.yaml.
     app.run(host='127.0.0.1', port=8080, debug=True)
