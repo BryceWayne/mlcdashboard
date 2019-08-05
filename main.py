@@ -1,58 +1,56 @@
-'''This example demonstrates embedding an autoloaded Bokeh server
-into a simple Flask application, and passing arguments to Bokeh.
-To view the example, run:
-    python flask_server.py
-in this directory, and navigate to:
-    http://localhost:5000
-'''
-import atexit
-import subprocess
+from flask import Flask, render_template
 
-from flask import render_template_string, Flask
 from bokeh.embed import server_document
+from bokeh.layouts import column
+from bokeh.models import ColumnDataSource, Slider
+from bokeh.plotting import figure
+from bokeh.server.server import Server
+from bokeh.themes import Theme
 
-home_html = """
-<!DOCTYPE html>
-<html lang="en">
-  <body>
-    <div class="bk-root">
-      <h1><a href="/batch/1"> Batch 1 (cos)</a></h1>
-      <h1><a href="/batch/2"> Batch 2 (sin)</a></h1>
-      <h1><a href="/batch/3"> Batch 3 (tan)</a></h1>
-    </div>
-  </body>
-</html>
-"""
-
-app_html = """
-<!DOCTYPE html>
-<html lang="en">
-  <body>
-    {{ bokeh_script|safe }}
-  </body>
-</html>
-"""
+from bokeh.sampledata.sea_surface_temperature import sea_surface_temperature
 
 app = Flask(__name__)
 
-bokeh_process = subprocess.Popen(
-    ['python', '-m',
-     'bokeh', 'serve',
-     '--allow-websocket-origin=* --port 8080',
-     'bokeh1.py'], stdout=subprocess.PIPE)
+def modify_doc(doc):
+    df = sea_surface_temperature.copy()
+    source = ColumnDataSource(data=df)
 
-@atexit.register
-def kill_server():
-    bokeh_process.kill()
+    plot = figure(x_axis_type='datetime', y_range=(0, 25), y_axis_label='Temperature (Celsius)',
+                  title="Sea Surface Temperature at 43.18, -70.43")
+    plot.line('time', 'temperature', source=source)
 
-@app.route('/')
-def home():
-    return render_template_string(home_html)
+    def callback(attr, old, new):
+        if new == 0:
+            data = df
+        else:
+            data = df.rolling('{0}D'.format(new)).mean()
+        source.data = ColumnDataSource(data=data).data
 
-@app.route('/batch/<int:batchid>')
-def visualization(batchid):
-    bokeh_script = server_document(url='http://localhost:5006/bokeh_server', arguments=dict(batchid=batchid))
-    return render_template_string(app_html, bokeh_script=bokeh_script)
+    slider = Slider(start=0, end=30, value=0, step=1, title="Smoothing by N Days")
+    slider.on_change('value', callback)
+
+    doc.add_root(column(slider, plot))
+
+    doc.theme = Theme(filename="theme.yaml")
+
+@app.route('/', methods=['GET'])
+def bkapp_page():
+    script = server_document('http://localhost:5006/bkapp')
+    return render_template("embed.html", script=script, template="Flask")
+
+def bk_worker():
+    # Can't pass num_procs > 1 in this configuration. If you need to run multiple
+    # processes, see e.g. flask_gunicorn_embed.py
+    server = Server({'/bkapp': modify_doc}, allow_websocket_origin=["localhost:8000"])
+    server.start()
+    server.io_loop.start()
+
+from threading import Thread
+Thread(target=bk_worker).start()
 
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=8080, debug=True)
+    print('Opening single process Flask app with embedded Bokeh application on http://localhost:8000/')
+    print()
+    print('Multiple connections may block the Bokeh app in this configuration!')
+    print('See "flask_gunicorn_embed.py" for one way to run multi-process')
+    app.run(port=8000)
