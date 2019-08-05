@@ -38,8 +38,7 @@ app = Flask(__name__)
 bokeh_process = subprocess.Popen(
     ['python', '-m',
      'bokeh', 'serve',
-     '--allow-websocket-origin=*',
-     '--port 8080',
+     '--allow-websocket-origin=* --port 8080',
      'bokeh1.py'], stdout=subprocess.PIPE)
 
 @atexit.register
