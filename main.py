@@ -28,9 +28,6 @@ app_html = """
 <!DOCTYPE html>
 <html lang="en">
   <body>
-    <div>
-        <h2><a href="/batch/1">Batch 1 (cos)</a> - <a href="/batch/2">Batch 2 (sin)</a> - <a href="/batch/3">Batch 3 (tan)</a></h2>
-    </div>
     {{ bokeh_script|safe }}
   </body>
 </html>
