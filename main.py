@@ -39,7 +39,7 @@ app_html = """
 app = Flask(__name__)
 
 bokeh_process = subprocess.Popen(
-    ['python', '-m', 'bokeh', 'serve', '--allow-websocket-origin=localhost:5000', 'bokeh_server.py'], stdout=subprocess.PIPE)
+    ['python', '-m', 'bokeh', 'serve', '--allow-websocket-origin=localhost:5000', 'main.py'], stdout=subprocess.PIPE)
 
 @atexit.register
 def kill_server():
