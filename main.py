@@ -1,69 +1,24 @@
-import flask
+from flask import Flask, render_template
 
-from bokeh.embed import components
-from bokeh.plotting import figure
-from bokeh.resources import INLINE
-from bokeh.templates import RESOURCES
-from bokeh.util.string import encode_utf8
+from bokeh.client import pull_session
+from bokeh.embed import server_session
 
-app = flask.Flask(__name__)
+app = Flask(__name__)
 
-colors = {
-    'Black': '#000000',
-    'Red':   '#FF0000',
-    'Green': '#00FF00',
-    'Blue':  '#0000FF',
-}
+@app.route('/', methods=['GET'])
+def bkapp_page():
 
+    # pull a new session from a running Bokeh server
+    with pull_session(url="http://localhost:5006/sliders") as session:
 
-def getitem(obj, item, default):
-    if item not in obj:
-        return default
-    else:
-        return obj[item]
+        # update or customize that session
+        session.document.roots[0].children[1].title.text = "Special Sliders For A Specific User!"
 
+        # generate a script to load the customized session
+        script = server_session(session_id=session.id, url='http://localhost:5006/sliders')
 
-@app.route("/")
-def polynomial():
-    """ Very simple embedding of a polynomial chart"""
-    # Grab the inputs arguments from the URL
-    # This is automated by the button
-    args = flask.request.args
+        # use the script in the rendered page
+        return render_template("embed.html", script=script, template="Flask")
 
-    # Get all the form arguments in the url with defaults
-    color = colors[getitem(args, 'color', 'Black')]
-    _from = int(getitem(args, '_from', 0))
-    to = int(getitem(args, 'to', 10))
-
-    # Create a polynomial line graph
-    x = list(range(_from, to + 1))
-    fig = figure(title="Polynomial")
-    fig.line(x, [i ** 2 for i in x], color=color, line_width=2)
-
-    # Configure resources to include BokehJS inline in the document.
-    # For more details see:
-    #   http://bokeh.pydata.org/en/latest/docs/reference/resources_embedding.html#module-bokeh.resources
-    plot_resources = RESOURCES.render(
-        js_raw=INLINE.js_raw,
-        css_raw=INLINE.css_raw,
-        js_files=INLINE.js_files,
-        css_files=INLINE.css_files,
-    )
-
-    # For more details see:
-    #   http://bokeh.pydata.org/en/latest/docs/user_guide/embedding.html#components
-    script, div = components(fig, INLINE)
-    html = flask.render_template(
-        'embed.html',
-        plot_script=script, plot_div=div, plot_resources=plot_resources,
-        color=color, _from=_from, to=to
-    )
-    return encode_utf8(html)
-
-
-def main():
-    app.debug = True
-    app.run(host='127.0.0.1', port=8080)
-
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    app.run(port=8080)
