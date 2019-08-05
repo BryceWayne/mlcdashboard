@@ -48,7 +48,7 @@ def home():
 
 @app.route('/batch/<int:batchid>')
 def visualization(batchid):
-    bokeh_script = server_document(url='http://localhost:8080/bokeh_server', arguments=dict(batchid=batchid))
+    bokeh_script = server_document(url='http://localhost:5006/bokeh_server', arguments=dict(batchid=batchid))
     return render_template_string(app_html, bokeh_script=bokeh_script)
 
 if __name__ == '__main__':
