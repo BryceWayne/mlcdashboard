@@ -1,5 +1,6 @@
 from flask import Flask, flash, redirect, render_template, request, session, abort
-from bokeh.embed import autoload_server
+#from bokeh.embed import autoload_server
+from bokeh.embed import server_document
 app = Flask(__name__)
 
 @app.route("/")
