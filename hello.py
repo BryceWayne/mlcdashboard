@@ -1,6 +1,9 @@
 from flask import Flask, flash, redirect, render_template, request, session, abort
 #from bokeh.embed import autoload_server
 from bokeh.embed import server_document
+import subprocess
+
+subprocess.call('bokeh serve ./bokeh-sliders.py --allow-websocket-origin=127.0.0.1:5006')
 app = Flask(__name__)
 
 @app.route("/")
