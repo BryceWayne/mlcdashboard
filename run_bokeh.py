@@ -27,7 +27,7 @@ def run(doc):
     click()
 
 # configure and run bokeh server
-kws = {'port': 5100, 'prefix': '/bokeh', 'allow_websocket_origin': ['165.227.26.215']}
+kws = {'port': 8080, 'prefix': '/bokeh', 'allow_websocket_origin': ['*']}
 server = Server(run, **kws)
 server.start()
 if __name__ == '__main__':
