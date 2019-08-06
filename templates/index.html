@@ -1,5 +1,37 @@
-<h1 style='color:blue'>Hello There!</h1>
+   <!DOCTYPE html>
+<html lang="en">
+<head>
+    <link
+    href="http://cdn.pydata.org/bokeh/release/bokeh-0.11.1.min.css"
+    rel="stylesheet" type="text/css">
+<script src="http://cdn.pydata.org/bokeh/release/bokeh-0.11.1.min.js"></script>
 
-<div>
-    {{ tag | safe}}
-</div>
+    <meta charset="UTF-8">
+    <title>{{title}}</title>
+
+
+</head>
+
+
+<body>
+
+
+    <div style="width: 20%; display: inline-block;">
+
+        {{ div | safe }}
+        {{ script | safe }}
+
+    </div>
+
+    <div style="width: 20%; display: inline-block;">
+
+        {{ div2 | safe }}
+        {{ script2 | safe }}
+
+
+    </div>
+
+
+
+</body>
+</html>
