@@ -1,4 +1,8 @@
 runtime: python37
 
+handlers:
+- url:.*
+  script: hello.py
+
 network:
   session_affinity: true
