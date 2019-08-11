@@ -1,8 +1,1 @@
 runtime: python37
-
-handlers:
-- url:.*
-  script: app.py
-
-network:
-  session_affinity: true
