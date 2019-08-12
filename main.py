@@ -8,6 +8,7 @@ from bokeh.models import ColumnDataSource, CustomJS, Slider
 from bokeh.palettes import Spectral6
 from bokeh.transform import factor_cmap
 from bokeh.layouts import row, column
+import numpy as np
 
 app = Flask(__name__)
 
@@ -66,7 +67,7 @@ def index():
 	offset_slider.js_on_change('value', callback)
 
 	layout = row(
-	    plot,
+	    p,
 	    column(amp_slider, freq_slider, phase_slider, offset_slider),
 	)
 	# grab the static resources
