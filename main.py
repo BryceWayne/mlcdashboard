@@ -37,7 +37,7 @@ def index():
 
 	source = ColumnDataSource(data=dict(x=x, y=y))
 
-	p = figure(y_range=(-10, 10), plot_width=400, plot_height=400)
+	p = figure(y_range=(-10, 10), plot_width=1000, plot_height=600)
 
 	p.line('x', 'y', source=source, line_width=3, line_alpha=0.6)
 
