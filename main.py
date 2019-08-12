@@ -75,7 +75,7 @@ def index():
 	css_resources = INLINE.render_css()
 
 	# render template
-	script, div = components(p)
+	script, div = components(layout)
 	html = render_template(
 	    'index.html',
 	    plot_script=script,
