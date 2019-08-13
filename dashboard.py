@@ -186,26 +186,26 @@ def update_window_2():
     # Sample = sample.button_type
     N = num_sample.value
     try:
-	N = float(N)
-	N = np.round(N, 0)
-	if N > 0:
-	    N = int(N)
-	else:
-	    N = int(abs(N))
-	num_sample.title = 'Number of Samples'
-	num_sample.value = str(N)
+		N = float(N)
+		N = np.round(N, 0)
+		if N > 0:
+		    N = int(N)
+		else:
+		    N = int(abs(N))
+		num_sample.title = 'Number of Samples'
+		num_sample.value = str(N)
     except:
-	N = 1
-	N = int(N)
-	num_sample.title = 'Number of Samples: (Please enter a positive integer)'
-	num_sample.value = str(N)
-    numbers = np.random.randint(low=1, high=11, size=N)
-    count = source2.data['y']
-    for x in numbers:
-	count[x - 1] += 1
-    unique, counts = source2.data['x'], count
-    source2.data = dict(x=unique, y=counts)
-    plot2.y_range.end = phi*counts.max()
+		N = 1
+		N = int(N)
+		num_sample.title = 'Number of Samples: (Please enter a positive integer)'
+		num_sample.value = str(N)
+	    numbers = np.random.randint(low=1, high=11, size=N)
+	    count = source2.data['y']
+	    for x in numbers:
+		count[x - 1] += 1
+	    unique, counts = source2.data['x'], count
+	    source2.data = dict(x=unique, y=counts)
+	    plot2.y_range.end = phi*counts.max()
 
 
 sample.on_click(update_window_2)
@@ -228,39 +228,39 @@ def update_window_3():
     # Sample = sample.button_type
     N = num_sample3.value
     try:
-	N = float(N)
-	N = np.round(N, 0)
-	if N > 0:
-	    N = int(N)
-	else:
-	    N = int(abs(N))
-	num_sample.title = 'Number of Samples'
-	num_sample.value = str(N)
+		N = float(N)
+		N = np.round(N, 0)
+		if N > 0:
+		    N = int(N)
+		else:
+		    N = int(abs(N))
+		num_sample.title = 'Number of Samples'
+		num_sample.value = str(N)
     except:
-	N = 1
-	N = int(N)
-	num_sample.title = 'Number of Samples: (Please enter a positive integer)'
-	num_sample.value = str(N)
-    x3 = source3.data['x']
-    # print("x3 type:", type(x3))
-    y3 = source3.data['y']
-    # print("y3 type:", type(y3))
-    x3_temp = np.random.uniform(low=-1, high=1, size=N)
-    # print("x3_temp:", x3_temp, "type:", type(x3))
-    y3_temp = np.random.uniform(low=-1, high=1, size=N)
-    # print("y3_temp:", y3_temp, "type:", type(y3))
-    x3 = np.concatenate((x3, x3_temp))
-    # print("x3_conc:", x3[-5:])
-    y3 = np.concatenate((y3, y3_temp))
-    # print("y3_conc:", y3[-5:])
-    r = np.sqrt(x3**2+y3**2)
-    len_r = len(r)
-    in_r = len([i for i in r if i <= 1])
-    out_r = len([i for i in r if i > 1])
-    ratio = 4*in_r/len_r
-    # print("len:", len_r, "in:", in_r, "ratio:", ratio)
-    output3.value = str(np.round(ratio, 8))
-    source3.data = dict(x=x3, y=y3)
+		N = 1
+		N = int(N)
+		num_sample.title = 'Number of Samples: (Please enter a positive integer)'
+		num_sample.value = str(N)
+	    x3 = source3.data['x']
+	    # print("x3 type:", type(x3))
+	    y3 = source3.data['y']
+	    # print("y3 type:", type(y3))
+	    x3_temp = np.random.uniform(low=-1, high=1, size=N)
+	    # print("x3_temp:", x3_temp, "type:", type(x3))
+	    y3_temp = np.random.uniform(low=-1, high=1, size=N)
+	    # print("y3_temp:", y3_temp, "type:", type(y3))
+	    x3 = np.concatenate((x3, x3_temp))
+	    # print("x3_conc:", x3[-5:])
+	    y3 = np.concatenate((y3, y3_temp))
+	    # print("y3_conc:", y3[-5:])
+	    r = np.sqrt(x3**2+y3**2)
+	    len_r = len(r)
+	    in_r = len([i for i in r if i <= 1])
+	    out_r = len([i for i in r if i > 1])
+	    ratio = 4*in_r/len_r
+	    # print("len:", len_r, "in:", in_r, "ratio:", ratio)
+	    output3.value = str(np.round(ratio, 8))
+	    source3.data = dict(x=x3, y=y3)
 
 
 sample3.on_click(update_window_3)
@@ -280,7 +280,7 @@ def update_window_4(attr, new, old):
     global source4, type_selection4, dropdown4
     # print('dropdown4 val:', dropdown4.value, "type:", type(dropdown4.value))
     if dropdown4.value is None:
-	dropdown4.value = '1'
+		dropdown4.value = '1'
     type_selection4.value = 'Totals'
     dice = int(dropdown4.value)
     sides = abs(int(num_sides.value))
@@ -291,21 +291,21 @@ def update_window_4(attr, new, old):
     x4 = L
     y4 = np.zeros_like(L)
     for _ in range(10000):
-	temp = np.random.randint(low=1, high=sides+1, size=dice).sum()
-	y4[temp-dice] += 1
+		temp = np.random.randint(low=1, high=sides+1, size=dice).sum()
+		y4[temp-dice] += 1
 
     source4.data['label'] = source4.data['x'] = x4
     source4.data['y'] = y4
     source4.data['z'] = source4.data['y'] / sum(source4.data['y'])
     if type_selection4.value == 'Totals':
-	plot4.y_range.end = phi * max(y4)
-	source4.data['value'] = source4.data['y']
+		plot4.y_range.end = phi * max(y4)
+		source4.data['value'] = source4.data['y']
     elif type_selection4.value == 'Cummulative Frequency':
-	plot4.y_range.end = 1
-	source4.data['value'] = np.cumsum(source4.data['y'] / sum(source4.data['y']))
+		plot4.y_range.end = 1
+		source4.data['value'] = np.cumsum(source4.data['y'] / sum(source4.data['y']))
     elif type_selection4.value == 'Relative Frequency':
-	plot4.y_range.end = phi * max(source4.data['y'] / sum(source4.data['y']))
-	source4.data['value'] = source4.data['y'] / sum(source4.data['y'])
+		plot4.y_range.end = phi * max(source4.data['y'] / sum(source4.data['y']))
+		source4.data['value'] = source4.data['y'] / sum(source4.data['y'])
 
 
 dropdown4.on_change('value', update_window_4)
@@ -315,7 +315,7 @@ def update_type_4(attr, new, old):
     global source4, type_selection4, dropdown4, num_sides
     # print('dropdown4 val:', dropdown4.value, "type:", type(dropdown4.value))
     if dropdown4.value is None:
-	dropdown4.value = '1'
+		dropdown4.value = '1'
     dice = int(dropdown4.value)
     sides = abs(int(num_sides.value))
     num_sides.value = str(sides)
@@ -328,14 +328,14 @@ def update_type_4(attr, new, old):
     source4.data['y'] = y4
     source4.data['z'] = source4.data['y'] / sum(source4.data['y'])
     if type_selection4.value == 'Totals':
-	plot4.y_range.end = phi * max(y4)
-	source4.data['value'] = source4.data['y']
+		plot4.y_range.end = phi * max(y4)
+		source4.data['value'] = source4.data['y']
     elif type_selection4.value == 'Cummulative Frequency':
-	plot4.y_range.end = 1
-	source4.data['value'] = np.cumsum(source4.data['y'] / sum(source4.data['y']))
+		plot4.y_range.end = 1
+		source4.data['value'] = np.cumsum(source4.data['y'] / sum(source4.data['y']))
     elif type_selection4.value == 'Relative Frequency':
-	plot4.y_range.end = phi * max(source4.data['y'] / sum(source4.data['y']))
-	source4.data['value'] = source4.data['y'] / sum(source4.data['y'])
+		plot4.y_range.end = phi * max(source4.data['y'] / sum(source4.data['y']))
+		source4.data['value'] = source4.data['y'] / sum(source4.data['y'])
 
 
 type_selection4.on_change('value', update_type_4)
@@ -345,7 +345,7 @@ def update_roll4():
     global source4, dropdown4, type_selection4, num_sides
     # print('dropdown4 val:', dropdown4.value, "type:", type(dropdown4.value))
     if dropdown4.value is None:
-	dropdown4.value = '1'
+		dropdown4.value = '1'
     dice = int(dropdown4.value)
     sides = abs(int(num_sides.value))
     num_sides.value = str(sides)
@@ -355,22 +355,22 @@ def update_roll4():
     x4 = L
     y4 = source4.data['y']
     for _ in range(10000):
-	temp = np.random.randint(low=1, high=sides+1, size=dice).sum()
-	# print("Temp roll:", temp)
-	y4[temp-dice] += 1
+		temp = np.random.randint(low=1, high=sides+1, size=dice).sum()
+		# print("Temp roll:", temp)
+		y4[temp-dice] += 1
 
     source4.data['label'] = source4.data['x'] = x4
     source4.data['y'] = y4
     source4.data['z'] = source4.data['y'] /sum(source4.data['y'])
     if type_selection4.value == 'Totals':
-	plot4.y_range.end = phi * max(y4)
-	source4.data['value'] = source4.data['y']
+		plot4.y_range.end = phi * max(y4)
+		source4.data['value'] = source4.data['y']
     elif type_selection4.value == 'Cummulative Frequency':
-	plot4.y_range.end = 1
-	source4.data['value'] = np.cumsum(source4.data['y'] / sum(source4.data['y']))
+		plot4.y_range.end = 1
+		source4.data['value'] = np.cumsum(source4.data['y'] / sum(source4.data['y']))
     elif type_selection4.value == 'Relative Frequency':
-	plot4.y_range.end = phi * max(source4.data['y'] / sum(source4.data['y']))
-	source4.data['value'] = source4.data['y'] / sum(source4.data['y'])
+		plot4.y_range.end = phi * max(source4.data['y'] / sum(source4.data['y']))
+		source4.data['value'] = source4.data['y'] / sum(source4.data['y'])
 
 
 roll4.on_click(update_roll4)
@@ -379,7 +379,7 @@ roll4.on_click(update_roll4)
 def change_num_sides_4(attr, old, new):
     global source4, type_selection4, dropdown4, num_sides
     if dropdown4.value is None:
-	dropdown4.value = '1'
+		dropdown4.value = '1'
     dice = int(dropdown4.value)
     sides = abs(int(num_sides.value))
     num_sides.value = str(sides)
@@ -389,21 +389,21 @@ def change_num_sides_4(attr, old, new):
     x4 = L
     y4 = np.zeros_like(L)
     for _ in range(10000):
-	temp = np.random.randint(low=1, high=sides + 1, size=dice)
-	temp = temp.sum()
-	y4[temp - dice] += 1
+		temp = np.random.randint(low=1, high=sides + 1, size=dice)
+		temp = temp.sum()
+		y4[temp - dice] += 1
     source4.data['label'] = source4.data['x'] = x4
     source4.data['y'] = y4
     source4.data['z'] = source4.data['y'] / sum(source4.data['y'])
     if type_selection4.value == 'Totals':
-	plot4.y_range.end = phi * max(y4)
-	source4.data['value'] = source4.data['y']
+		plot4.y_range.end = phi * max(y4)
+		source4.data['value'] = source4.data['y']
     elif type_selection4.value == 'Cummulative Frequency':
-	plot4.y_range.end = 1
-	source4.data['value'] = np.cumsum(source4.data['y'] / sum(source4.data['y']))
+		plot4.y_range.end = 1
+		source4.data['value'] = np.cumsum(source4.data['y'] / sum(source4.data['y']))
     elif type_selection4.value == 'Relative Frequency':
-	plot4.y_range.end = phi * max(source4.data['y'] / sum(source4.data['y']))
-	source4.data['value'] = source4.data['y'] / sum(source4.data['y'])
+		plot4.y_range.end = phi * max(source4.data['y'] / sum(source4.data['y']))
+		source4.data['value'] = source4.data['y'] / sum(source4.data['y'])
 
 
 num_sides.on_change('value', change_num_sides_4)
@@ -429,7 +429,7 @@ reset4.on_click(reset_window_4)
 
 def update_window_5(attr, new, old):
     if dropdown5.value is None:
-	dropdown5.value = 'Strategy 1'
+		dropdown5.value = 'Strategy 1'
 
 
 for w in [dropdown5, table_min, table_max, bankroll]:
