@@ -1,2 +1,2 @@
-runtime: python
+runtime: python37
 service: main
