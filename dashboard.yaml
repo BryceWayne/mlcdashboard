@@ -1,2 +1,3 @@
 runtime: python37
 service: dashboard
+entrypoint: bokeh serve dashboard.py
