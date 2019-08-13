@@ -511,13 +511,13 @@ def index():
 	tabs = Tabs(tabs=[tab1, tab2, tab3, tab4, tab5])
 
 	# grab the static resources
-	js_resources = INLINE.render_js()
-	css_resources = INLINE.render_css()
+# 	js_resources = INLINE.render_js()
+# 	css_resources = INLINE.render_css()
 
 	# render template
-# 	script, div = components(tabs)
 	script = server_document("http://localhost:5006/dashboard")
-	html = render_template('index.html', plot_script=script, js_resources=js_resources, css_resources=css_resources)
+	html = render_template('index.html', plot_script=script)
+# 	script, div = components(tabs)
 # 	html = render_template(
 # 	    'index.html',
 # 	    plot_script=script,
