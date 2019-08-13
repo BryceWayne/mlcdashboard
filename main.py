@@ -4,6 +4,7 @@ from bokeh.plotting import figure, output_file, show, ColumnDataSource
 from bokeh.resources import INLINE
 from bokeh.util.string import encode_utf8
 from bokeh.io import show, output_file, curdoc
+from bokeh.embed import server_document
 from bokeh.models import ColumnDataSource, CustomJS, Slider, Range1d
 from bokeh.models.widgets import Slider, TextInput, Tabs, Panel, Button, DataTable
 from bokeh.models.widgets import NumberFormatter, TableColumn, Dropdown, RadioButtonGroup, Select
@@ -514,14 +515,16 @@ def index():
 	css_resources = INLINE.render_css()
 
 	# render template
-	script, div = components(tabs)
-	html = render_template(
-	    'index.html',
-	    plot_script=script,
-	    plot_div=div,
-	    js_resources=js_resources,
-	    css_resources=css_resources,
-	)
+# 	script, div = components(tabs)
+	script = server_document("http://localhost:5006/dashboard")
+	html = render_template('index.html', plot_script=script, js_resources=js_resources, css_resources=css_resources)
+# 	html = render_template(
+# 	    'index.html',
+# 	    plot_script=script,
+# 	    plot_div=div,
+# 	    js_resources=js_resources,
+# 	    css_resources=css_resources,
+# 	)
 	return encode_utf8(html)
 
 
