@@ -1,5 +1,5 @@
 runtime: python37
-# env: flex
+service: standard
 entrypoint: gunicorn -b :$PORT main:app
 # resources:
 #     cpu: 1
