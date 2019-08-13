@@ -20,5 +20,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 EXPOSE 5006
 
 # [START CMD]
-CMD bokeh serve --num-procs=2 --port=5006 --address=0.0.0.0 --allow-websocket-origin=* main.py
+CMD bokeh serve --num-procs=2 --host localhost:5006 --allow-websocket-origin=* dashboard.py
 # [END CMD]
