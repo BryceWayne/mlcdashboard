@@ -11,6 +11,7 @@ from bokeh.palettes import Spectral6
 from bokeh.transform import factor_cmap
 from bokeh.layouts import row, column
 import numpy as np
+
 # Set up data
 N = 1000
 x1 = np.linspace(-10, 10, N)
