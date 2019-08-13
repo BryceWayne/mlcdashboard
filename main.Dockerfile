@@ -22,5 +22,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 # EXPOSE 5006
 
 # [START CMD]
-CMD main.py
+CMD python main.py
 # [END CMD]
