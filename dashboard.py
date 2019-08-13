@@ -136,26 +136,26 @@ for t in [title1, title2, title3, title4, title5]:
 
 
 def update_window_1(attrname, old, new):
-    Mu = mu.value
-    Sigma = sigma.value
-    try:
-	Sigma = float(Sigma)
-	sigma.title = "Standard Deviation:"
-    except:
-	Sigma = 1
-	sigma.title = "Standard Deviation: ~Error~ (Please enter in a number)"
-    try:
-	Mu = float(Mu)
-	mu.title = "Average:"
-    except:
-	Mu = 0
-	mu.title = "Average: ~Error~ (Please enter in a number)"
-    x1 = np.linspace(Mu - 6 * Sigma, Mu + 6 * Sigma, N)
-    plot1.x_range.start = x1.min()
-    plot1.x_range.end = x1.max()
-    y1 = 1 / (Sigma * np.sqrt(2 * pi)) * np.exp(-0.5 * ((x1 - Mu) / Sigma) ** 2)
-    plot1.y_range.end = phi*y1.max()
-    source1.data = dict(x=x1, y=y1)
+	Mu = mu.value
+	Sigma = sigma.value
+	try:
+		Sigma = float(Sigma)
+		sigma.title = "Standard Deviation:"
+	except:
+		Sigma = 1
+		sigma.title = "Standard Deviation: ~Error~ (Please enter in a number)"
+	try:
+		Mu = float(Mu)
+		mu.title = "Average:"
+	except:
+		Mu = 0
+		mu.title = "Average: ~Error~ (Please enter in a number)"
+		x1 = np.linspace(Mu - 6 * Sigma, Mu + 6 * Sigma, N)
+		plot1.x_range.start = x1.min()
+		plot1.x_range.end = x1.max()
+		y1 = 1 / (Sigma * np.sqrt(2 * pi)) * np.exp(-0.5 * ((x1 - Mu) / Sigma) ** 2)
+		plot1.y_range.end = phi*y1.max()
+		source1.data = dict(x=x1, y=y1)
 
 
 for w in [mu, sigma]:
