@@ -1,5 +1,5 @@
-runtime: custom
-env: flex
+runtime: python3
+# env: flex
 entrypoint: gunicorn -b :$PORT main:app
 # resources:
 #     cpu: 1
