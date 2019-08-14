@@ -9,10 +9,6 @@ app = Flask(__name__)
 bokeh_process = subprocess.Popen(
     ['bokeh', 'serve','--allow-websocket-origin=*','dashboard.py'], stdout=subprocess.PIPE)
 
-@atexit.register
-def kill_server():
-    bokeh_process.kill()
-
 @app.route('/')
 def index():
     script = server_document("http://localhost:5006/")
