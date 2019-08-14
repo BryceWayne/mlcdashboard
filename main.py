@@ -15,7 +15,7 @@ def kill_server():
 
 @app.route('/')
 def index():
-    script = server_document("localhost:5006/dashboard")
+    script = server_document("http://localhost:5006/")
     return render_template_string('index.html', bokeh_script=script)
 
 if __name__ == '__main__':
