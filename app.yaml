@@ -1,5 +1,5 @@
 runtime: python37
-entrypoint: gunicorn -b :$PORT main:app
+entrypoint: gunicorn -b :8080 main:app
 resources:
     cpu: 1
     memory_gb: 2
