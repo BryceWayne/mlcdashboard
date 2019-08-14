@@ -1,6 +1,6 @@
 from flask import Flask, render_template
 from bokeh.embed import server_document
-
+from bokeh.util.string import encode_utf8
 app = Flask(__name__)
 
 
