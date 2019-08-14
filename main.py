@@ -1,28 +1,24 @@
 from flask import Flask, render_template
-from bokeh.embed import server_document
-from bokeh.util.string import encode_utf8
-import subprocess
-import atexit
+
+from bokeh.client import pull_session
+from bokeh.embed import server_session
 
 app = Flask(__name__)
 
-bokeh_process = subprocess.Popen(["bokeh", 
-				  "serve", 
-				  "--allow-websocket-origin=*",
-				  "dashboard.py"], stdout=subprocess.PIPE)
+@app.route('/', methods=['GET'])
+def bkapp_page():
 
-@atexit.register
-def kill_server():
-    bokeh_process.kill()
+    # pull a new session from a running Bokeh server
+    with pull_session(url="http://localhost:5006/dashboard") as session:
 
-@app.route('/')
-def index():
-	session = pull_session(app_path='/')
-    	bokeh_script = autoload_server(None, app_path="/", session_id=session.id)
-	# render template
-# 	script = server_document("http://localhost:5006/dashboard")
-	html = render_template('index.html', plot_script=bokeh_script)
-	return encode_utf8(html)
+        # update or customize that session
+        session.document.roots[0].children[1].title.text = "Special Sliders For A Specific User!"
+
+        # generate a script to load the customized session
+        script = server_session(session_id=session.id, url='http://localhost:5006/dashboard')
+
+        # use the script in the rendered page
+        return render_template("index.html", script=script, template="Flask")
 
 
 if __name__ == '__main__':
