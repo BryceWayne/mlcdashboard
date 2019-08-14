@@ -2,8 +2,11 @@ from flask import Flask, render_template
 
 from bokeh.client import pull_session
 from bokeh.embed import server_session
+import subprocess
 
 app = Flask(__name__)
+
+subprocess.call("bokeh serve --allow-websocket-origin=* dashboard.py")
 
 @app.route('/', methods=['GET'])
 def bkapp_page():
