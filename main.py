@@ -10,7 +10,7 @@ bokeh_process = subprocess.Popen(
 
 @app.route('/')
 def index():
-    script = server_document("https://5006-dot-7920283-dot-devshell.appspot.com/dashboard?authuser=0")
+    script = server_document("http://localhost:5006/dashboard")
     print(script)
     return render_template('index.html', plot_script=script)
 
