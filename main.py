@@ -1,6 +1,7 @@
 #main.py
 from bokeh.embed import server_document
 from flask import Flask, request, render_template
+from flask_sockets import Sockets
 import subprocess
 
 app = Flask(__name__)
