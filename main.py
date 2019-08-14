@@ -3,7 +3,6 @@ from bokeh.embed import server_document
 from flask import Flask, request, render_template
 import subprocess
 
-script = server_document("https://demo.bokeh.org/sliders")
 app = Flask(__name__)
 
 bokeh_process = subprocess.Popen(
