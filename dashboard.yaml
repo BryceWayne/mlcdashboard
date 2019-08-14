@@ -1,3 +1,0 @@
-runtime: python37
-service: dashboard
-entrypoint: bokeh serve --allow-websocket-origin=* dashboard.py
