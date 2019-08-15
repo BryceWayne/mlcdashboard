@@ -8,7 +8,7 @@ app = Flask(__name__)
 # sockets = Sockets(app)
 
 bokeh_process = subprocess.Popen(
-    ['bokeh', 'serve','--allow-websocket-origin="*"', 'dashboard.py'], stdout=subprocess.PIPE)
+    ['bokeh', 'serve','--allow-websocket-origin=*', 'dashboard.py'], stdout=subprocess.PIPE)
 
 
 # @sockets.route('/chat')
