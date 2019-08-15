@@ -10,9 +10,3 @@ runtime_config:
 # network:
 #   session_affinity: true
   
-readinessCheck:
-  appStartTimeout: 3000s
-  checkInterval: 5s
-  failureThreshold: 2
-  successThreshold: 2
-  timeout: 4s
