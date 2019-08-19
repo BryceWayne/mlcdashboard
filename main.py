@@ -6,6 +6,8 @@ import subprocess
 
 app = Flask(__name__)
 
+subprocess.call("bokeh serve --allow-websocket-origin=* dashboard.py")
+
 @app.route('/')
 def index():
     script = server_document("http://localhost:5006/dashboard")
