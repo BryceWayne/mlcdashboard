@@ -7,6 +7,8 @@ from bokeh.models.widgets import NumberFormatter, TableColumn, Dropdown, RadioBu
 from bokeh.plotting import figure
 from pprint import pprint
 
+np.random.seed(42)
+
 output_file("intro.html")
 
 # Set up data
@@ -215,7 +217,6 @@ sample.on_click(update_window_2)
 
 
 def reset_window_2():
-    np.random.seed(42)
     x2 = np.random.randint(low=1, high=11, size=100)
     unique, counts = np.unique(x2, return_counts=True)
     plot2.y_range.end = phi * counts.max()
@@ -486,4 +487,5 @@ tab4 = Panel(child=tab4, title="Dice Party")
 tab5 = Panel(child=tab5, title="Wheel Party")
 tabs = Tabs(tabs=[tab1, tab2, tab3, tab4, tab5])
 curdoc().title = "MCC MLC DASH"
+curdoc().theme = 'light_minimal'
 curdoc().add_root(tabs)
