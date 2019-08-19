@@ -1,8 +1,11 @@
 from flask import Flask, render_template
 from bokeh.embed import server_document
 from bokeh.util.string import encode_utf8
+import subprocess
+
 app = Flask(__name__)
 
+subprocess.call("bokeh serve --allow-websocket-origin=* dashboard.py")
 
 @app.route('/')
 def index():
