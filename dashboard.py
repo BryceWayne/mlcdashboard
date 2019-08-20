@@ -11,20 +11,23 @@ np.random.seed(42)
 
 # Set up data
 N = 1000
-x1 = np.linspace(-10, 10, N)
 sigma = 1
 pi = np.pi
 phi = 1.618
 ratio = 0
 mu = 0
+x1 = np.linspace(mu - 6 * sigma, mu + 6 * sigma, N)
 y1 = 1/(sigma*np.sqrt(2*pi))*np.exp(-0.5*((x1-mu)/sigma)**2)
 source1 = ColumnDataSource(data=dict(x=x1, y=y1))
+u1 = np.linspace(mu - 6 * sigma, mu + 6 * sigma, N)
+v1 = 1/(sigma*np.sqrt(2*pi))*np.exp(-0.5*((u1-mu)/sigma)**2)
+source1_reference = ColumnDataSource(data=dict(x=u1, y=v1))
 
-np.random.seed(42)
 x2 = np.random.randint(low=1, high=11, size=100)
 unique2, counts2 = np.unique(x2, return_counts=True)
 source2 = ColumnDataSource(data=dict(x=unique2, y=counts2))
 
+# x3 = np.random
 source3 = ColumnDataSource(data=dict(x=[], y=[]))
 
 x4 = np.random.randint(low=1, high=7, size=100)
@@ -36,11 +39,12 @@ source5 = ColumnDataSource(data=dict(x=[], y=[]))
 Set up plot
 """
 plot1 = figure(plot_height=400, plot_width=int(phi*600), title="Oh my Gauss",
-              tools="crosshair,pan,save,wheel_zoom", x_range=[-10, 10], y_range=[0, 1])
-plot1.line('x', 'y', source=source1, line_width=3, line_alpha=0.6)
+              tools="crosshair,pan,save,wheel_zoom", x_range=[x1.min(), x1.max()], y_range=[0, phi*y1.max()])
+plot1.line('x', 'y', source=source1_reference, line_width=2, line_alpha=0.6, line_color="gray", line_dash='dashed', legend='Reference')
+plot1.line('x', 'y', source=source1, line_width=3, legend="Your Gauss")
 
 plot2 = figure(plot_height=600, plot_width=int(phi*600), title="Block Party",
-              tools="crosshair,save", x_range=[0, 11], y_range=[0, phi*max(counts2)])
+              tools="crosshair,save", x_range=[0, 11], y_range=[0, phi*counts2.max()])
 plot2.vbar(x='x', top='y', source=source2, width=0.8)
 
 plot3 = figure(plot_height=750, plot_width=750, title="Scatter!",
@@ -61,6 +65,7 @@ Set up widgets
 title1 = TextInput(title="Plot Title", value='Oh my Gauss')
 sigma = TextInput(title="Standard Deviation", value="1.0")
 mu = TextInput(title="Average", value="0.0")
+recompute1 = Button(label="Recompute", button_type="success")
 reset1 = Button(label="Reset", button_type="success")
 div1 = Div(text="""<p style="border:3px; border-style:solid; border-color:#FF0000; padding: 1em;">
                     Oh My Gauss is designed to let you explore what various kinds of normal distributions look like. 
@@ -94,8 +99,20 @@ sample3 = Button(label="Sample", button_type="success")
 reset3 = Button(label="Reset", button_type="success")
 output3 = TextInput(title="Ratio", value=str(ratio))
 div3 = Div(text="""<p style="border:3px; border-style:solid; border-color:#FF0000; padding: 0.5em;">
-                    Scatter! is a game that we can play, similar to Buffon's Needle, that allows us to approximate pi.</p>""",
+                    Scatter! is a game that we can play, similar to Buffon's Needle, that allows us to approximate &#960. 
+                    This is done by randomly throwing darts at a dart board. Our approximation is computed with the ratio of in to out.</p>""",
                     width=300, height=125)
+columns3 = [
+        TableColumn(field="x", title="In", formatter=NumberFormatter(text_align='center')),
+        TableColumn(field="y", title="Out", formatter=NumberFormatter(text_align='center')),
+        TableColumn(field="z", title="Total", formatter=NumberFormatter(text_align='center', format='0.0000 %'))]
+data_table3 = DataTable(source=source3,
+                        columns=columns3,
+                        index_position=None,
+                        fit_columns=True,
+                        width=275,
+                        height=180,
+                        selectable=False)
 
 title4 = TextInput(title="Dice Party", value='Dice Party')
 menu4 = [(str(x), str(x)) for x in range(1, 7)]
@@ -109,8 +126,7 @@ reset4 = Button(label="Reset", button_type="success")
 columns4 = [
         TableColumn(field="x", title="Roll", formatter=NumberFormatter(text_align='center')),
         TableColumn(field="y", title="Count", formatter=NumberFormatter(text_align='center')),
-        TableColumn(field="z", title="Rel. Freq.", formatter=NumberFormatter(text_align='center', format='0.0000 %')),
-    ]
+        TableColumn(field="z", title="Rel. Freq.", formatter=NumberFormatter(text_align='center', format='0.0000 %'))]
 data_table4 = DataTable(source=source4,
                         columns=columns4,
                         index_position=None,
@@ -148,51 +164,74 @@ for t in [title1, title2, title3, title4, title5]:
     t.on_change('value', update_title)
 
 
-def update_window_1(attrname, old, new):
+# def update_window_1(attrname, old, new):
+#     Mu = mu.value
+#     Sigma = sigma.value
+#     try:
+#         Sigma = float(Sigma)
+#         sigma.title = "Standard Deviation:"
+#     except:
+#         Sigma = 1
+#         sigma.title = "Standard Deviation: ~Error~ (Please enter in a number)"
+#     try:
+#         Mu = float(Mu)
+#         mu.title = "Average:"
+#     except:
+#         Mu = 0
+#         mu.title = "Average: ~Error~ (Please enter in a number)"
+#     x1 = np.linspace(Mu - 6 * Sigma, Mu + 6 * Sigma, N)
+#     plot1.x_range.start = x1.min()
+#     plot1.x_range.end = x1.max()
+#     y1 = 1 / (Sigma * np.sqrt(2 * pi)) * np.exp(-0.5 * ((x1 - Mu) / Sigma) ** 2)
+#     plot1.y_range.end = phi*y1.max()
+#     source1.data = dict(x=x1, y=y1)
+
+
+# for w in [mu, sigma]:
+#     w.on_change('value', update_window_1)
+
+def recompute_window_1():
     Mu = mu.value
     Sigma = sigma.value
     try:
+        sigma.value = str(float(Sigma))
         Sigma = float(Sigma)
         sigma.title = "Standard Deviation:"
     except:
-        Sigma = 1
+        Sigma = 1.
         sigma.title = "Standard Deviation: ~Error~ (Please enter in a number)"
     try:
+        mu.value = str(float(Mu))
         Mu = float(Mu)
         mu.title = "Average:"
     except:
-        Mu = 0
+        Mu = 0.
         mu.title = "Average: ~Error~ (Please enter in a number)"
     x1 = np.linspace(Mu - 6 * Sigma, Mu + 6 * Sigma, N)
-    plot1.x_range.start = x1.min()
-    plot1.x_range.end = x1.max()
     y1 = 1 / (Sigma * np.sqrt(2 * pi)) * np.exp(-0.5 * ((x1 - Mu) / Sigma) ** 2)
-    plot1.y_range.end = phi*y1.max()
+    plot1.x_range.start = min([x1.min(), u1.min()])
+    plot1.x_range.end = max([x1.max(), u1.max()])
+    plot1.y_range.end = phi*max([y1.max(), v1.max()])
     source1.data = dict(x=x1, y=y1)
 
-
-for w in [mu, sigma]:
-    w.on_change('value', update_window_1)
-
+recompute1.on_click(recompute_window_1)
 
 def reset_window_1():
     global pi
-    plot1.title.text = "Oh My Gauss"
-    x1 = np.linspace(-10, 10, N)
-    plot1.x_range.start = -10
-    plot1.x_range.end = 10
-    plot1.y_range.start = 0
-    sigma.value = str(1)
-    mu.value = str(0)
-    Sigma = 1
-    Mu = 0
+    Sigma = 1.
+    Mu = 0.
+    x1 = np.linspace(Mu - 6 * Sigma, Mu + 6 * Sigma, N)
     y1 = 1 / (Sigma * np.sqrt(2 * pi)) * np.exp(-0.5 * ((x1 - Mu) / Sigma) ** 2)
+    plot1.title.text = "Oh My Gauss"
+    plot1.x_range.start = x1.min()
+    plot1.x_range.end = x1.max()
+    plot1.y_range.start = 0
+    sigma.value = str(1.0)
+    mu.value = str(0.0)
     plot1.y_range.end = phi * y1.max()
     source1 = ColumnDataSource(data=dict(x=x1, y=y1))
 
-
 reset1.on_click(reset_window_1)
-
 
 def update_window_2():
     global source2
@@ -460,9 +499,9 @@ reset5.on_click(reset_window_5)
 
 
 # Set up layouts and add to document
-inputs1 = column(div1, title1, sigma, mu, reset1)
+inputs1 = column(div1, title1, sigma, mu, recompute1, reset1)
 inputs2 = column(div2, title2, num_sample, sample, reset2, data_table2)
-inputs3 = column(div3, title3, num_sample3, sample3, reset3, output3)
+inputs3 = column(div3, title3, num_sample3, sample3, reset3, data_table3, output3)
 inputs4 = column(title4, dropdown4, type_selection4, num_sides, roll4, reset4, data_table4)
 inputs5 = column(title5, dropdown5, reset5)
 tab1 = row(inputs1, plot1, width=int(phi*400))
