@@ -2,7 +2,7 @@ import numpy as np
 from bokeh.io import curdoc, output_file
 from bokeh.layouts import row, column
 from bokeh.models import ColumnDataSource, Range1d
-from bokeh.models.widgets import Slider, TextInput, Tabs, Panel, Button, DataTable
+from bokeh.models.widgets import Slider, TextInput, Tabs, Panel, Button, DataTable, Div
 from bokeh.models.widgets import NumberFormatter, TableColumn, Dropdown, RadioButtonGroup, Select
 from bokeh.plotting import figure
 from pprint import pprint
@@ -64,7 +64,10 @@ title1 = TextInput(title="Plot Title", value='Oh my Gauss')
 sigma = TextInput(title="Standard Deviation", value="1.0")
 mu = TextInput(title="Average", value="0.0")
 reset1 = Button(label="Reset", button_type="success")
-
+div1 = Div(text="""Your <a href="https://en.wikipedia.org/wiki/HTML">HTML</a>-supported text is initialized with the <b>text</b> argument.  The
+                    remaining div arguments are <b>width</b> and <b>height</b>. For this example, those values
+                    are <i>200</i> and <i>100</i> respectively.""",
+                    width=200, height=100)
 
 title2 = TextInput(title="Plot Title", value='Block Party')
 num_sample = TextInput(title='Number of Samples', value='1')
@@ -454,7 +457,8 @@ reset5.on_click(reset_window_5)
 inputs1 = column(title1,
                  sigma,
                  mu,
-                 reset1)
+                 reset1,
+                 div1)
 inputs2 = column(title2,
                  num_sample,
                  sample,
