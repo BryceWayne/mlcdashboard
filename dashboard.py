@@ -67,7 +67,7 @@ reset1 = Button(label="Reset", button_type="success")
 div1 = Div(text="""Your <a href="https://en.wikipedia.org/wiki/HTML">HTML</a>-supported text is initialized with the <b>text</b> argument.  The
                     remaining div arguments are <b>width</b> and <b>height</b>. For this example, those values
                     are <i>200</i> and <i>100</i> respectively.""",
-                    width=200, height=100)
+                    width=int(phi*400), height=100)
 
 title2 = TextInput(title="Plot Title", value='Block Party')
 num_sample = TextInput(title='Number of Samples', value='1')
@@ -454,31 +454,11 @@ reset5.on_click(reset_window_5)
 
 
 # Set up layouts and add to document
-inputs1 = column(title1,
-                 sigma,
-                 mu,
-                 reset1,
-                 div1)
-inputs2 = column(title2,
-                 num_sample,
-                 sample,
-                 reset2,
-                 data_table2)
-inputs3 = column(title3,
-                 num_sample3,
-                 sample3,
-                 reset3,
-                 output3)
-inputs4 = column(title4,
-                 dropdown4,
-                 type_selection4,
-                 num_sides,
-                 roll4,
-                 reset4,
-                 data_table4)
-inputs5 = column(title5,
-                 dropdown5,
-                 reset5)
+inputs1 = column(title1, sigma, mu, reset1, div1)
+inputs2 = column(title2, num_sample, sample, reset2, data_table2)
+inputs3 = column(title3, num_sample3, sample3, reset3, output3)
+inputs4 = column(title4, dropdown4, type_selection4, num_sides, roll4, reset4, data_table4)
+inputs5 = column(title5, dropdown5, reset5)
 tab1 = row(inputs1, plot1, width=int(phi*400))
 tab2 = row(inputs2, plot2, width=int(phi*400))
 tab3 = row(inputs3, plot3, width=int(phi*400))
