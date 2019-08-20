@@ -83,13 +83,13 @@ data_table2 = DataTable(source=source2,
                         height=280,
                         selectable=False)
 div2 = Div(text="""<p style="border:3px; border-style:solid; border-color:#FF0000; padding: 1em;">
-                    Block Party demonstrated what occurs when there is a uniform distribution of events. 
+                    Block Party demonstrates what occurs when there is a uniform distribution of events. 
                     Try changing the number of samples. 
                     You can hit the reset button to start over.</p>""",
                     width=300, height=125)
 
 title3 = TextInput(title="Plot Title", value='Scatter!')
-num_sample3 = TextInput(title='Number of Samples', value='1')
+num_sample3 = TextInput(title='Number of Samples', value='1000')
 sample3 = Button(label="Sample", button_type="success")
 reset3 = Button(label="Reset", button_type="success")
 output3 = TextInput(title="Ratio", value=str(ratio))
@@ -280,9 +280,10 @@ sample3.on_click(update_window_3)
 
 def reset_window_3():
     global source3
-    print("Reset")
+    # print("Reset")
     source3.data = dict(x=[], y=[])
     output3.value = '0'
+    num_sample3.value = '1000'
 
 
 reset3.on_click(reset_window_3)
