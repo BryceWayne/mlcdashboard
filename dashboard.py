@@ -9,7 +9,7 @@ from pprint import pprint
 
 np.random.seed(42)
 
-output_file("intro.html")
+# output_file("intro.html")
 
 # Set up data
 N = 1000
@@ -64,10 +64,10 @@ title1 = TextInput(title="Plot Title", value='Oh my Gauss')
 sigma = TextInput(title="Standard Deviation", value="1.0")
 mu = TextInput(title="Average", value="0.0")
 reset1 = Button(label="Reset", button_type="success")
-div1 = Div(text="""Your <a href="https://en.wikipedia.org/wiki/HTML">HTML</a>-supported text is initialized with the <b>text</b> argument.  The
-                    remaining div arguments are <b>width</b> and <b>height</b>. For this example, those values
-                    are <i>200</i> and <i>100</i> respectively.""",
-                    width=int(300), height=100)
+div1 = Div(text="""<p style="border:3px; border-style:solid; border-color:#FF0000; padding: 1em;">
+                    Oh My Gauss is designed to let you explore what various kinds of normal distributions look like. 
+                    Try changing the Standard Deviation or Average to see how this affects the plot.</p>""",
+                    width=300, height=125)
 
 title2 = TextInput(title="Plot Title", value='Block Party')
 num_sample = TextInput(title='Number of Samples', value='1')
@@ -84,13 +84,20 @@ data_table2 = DataTable(source=source2,
                         width=275,
                         height=280,
                         selectable=False)
-
+div2 = Div(text="""<p style="border:3px; border-style:solid; border-color:#FF0000; padding: 1em;">
+                    Block Party demonstrated what occurs when there is a uniform distribution of events. 
+                    Try changing the number of samples. 
+                    You can hit the reset button to start over.</p>""",
+                    width=300, height=125)
 
 title3 = TextInput(title="Plot Title", value='Scatter!')
 num_sample3 = TextInput(title='Number of Samples', value='1')
 sample3 = Button(label="Sample", button_type="success")
 reset3 = Button(label="Reset", button_type="success")
 output3 = TextInput(title="Ratio", value=str(ratio))
+div3 = Div(text="""<p style="border:3px; border-style:solid; border-color:#FF0000; padding: 0.5em;">
+                    Scatter! is a game that we can play, similar to Buffon's Needle, that allows us to approximate pi.</p>""",
+                    width=300, height=125)
 
 title4 = TextInput(title="Dice Party", value='Dice Party')
 menu4 = [(str(x), str(x)) for x in range(1, 7)]
@@ -454,9 +461,9 @@ reset5.on_click(reset_window_5)
 
 
 # Set up layouts and add to document
-inputs1 = column(title1, sigma, mu, reset1, div1)
-inputs2 = column(title2, num_sample, sample, reset2, data_table2)
-inputs3 = column(title3, num_sample3, sample3, reset3, output3)
+inputs1 = column(div1, title1, sigma, mu, reset1)
+inputs2 = column(div2, title2, num_sample, sample, reset2, data_table2)
+inputs3 = column(div3, title3, num_sample3, sample3, reset3, output3)
 inputs4 = column(title4, dropdown4, type_selection4, num_sides, roll4, reset4, data_table4)
 inputs5 = column(title5, dropdown5, reset5)
 tab1 = row(inputs1, plot1, width=int(phi*400))
