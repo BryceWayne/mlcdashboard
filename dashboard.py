@@ -65,7 +65,7 @@ reset1 = Button(label="Reset", button_type="success")
 div1 = Div(text="""<p style="border:3px; border-style:solid; border-color:#FF0000; padding: 1em;">
                     Oh My Gauss is designed to let you explore what various kinds of normal distributions look like. 
                     Try changing the Standard Deviation or Average to see how this affects the plot.</p>""",
-                    width=300, height=125)
+                    width=300, height=130)
 
 title2 = TextInput(title="Plot Title", value='Block Party')
 num_sample = TextInput(title='Number of Samples', value='1')
