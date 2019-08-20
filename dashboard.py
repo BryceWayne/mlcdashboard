@@ -67,7 +67,7 @@ reset1 = Button(label="Reset", button_type="success")
 div1 = Div(text="""Your <a href="https://en.wikipedia.org/wiki/HTML">HTML</a>-supported text is initialized with the <b>text</b> argument.  The
                     remaining div arguments are <b>width</b> and <b>height</b>. For this example, those values
                     are <i>200</i> and <i>100</i> respectively.""",
-                    width=int(phi*400), height=100)
+                    width=int(300), height=100)
 
 title2 = TextInput(title="Plot Title", value='Block Party')
 num_sample = TextInput(title='Number of Samples', value='1')
