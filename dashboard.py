@@ -9,8 +9,6 @@ from pprint import pprint
 
 np.random.seed(42)
 
-# output_file("intro.html")
-
 # Set up data
 N = 1000
 x1 = np.linspace(-10, 10, N)
@@ -477,6 +475,7 @@ tab3 = Panel(child=tab3, title="Scatter!")
 tab4 = Panel(child=tab4, title="Dice Party")
 tab5 = Panel(child=tab5, title="Wheel Party")
 tabs = Tabs(tabs=[tab1, tab2, tab3, tab4, tab5])
-curdoc().title = "MCC MLC DASH"
+
+curdoc().title = "MCC MLC Dashboard"
 curdoc().theme = 'light_minimal'
 curdoc().add_root(tabs)
