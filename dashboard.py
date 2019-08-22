@@ -29,6 +29,7 @@ source2 = ColumnDataSource(data=dict(x=unique2, y=counts2))
 
 # x3 = np.random
 source3 = ColumnDataSource(data=dict(x=[], y=[]))
+ratio_report3 = ColumnDataSource(data=dict(w=[0], x=[0], y=[0], z=[0]))
 
 x4 = np.random.randint(low=1, high=7, size=100)
 unique4, counts4 = np.unique(x4, return_counts=True)
@@ -43,12 +44,12 @@ plot1 = figure(plot_height=400, plot_width=int(phi*600), title="Oh my Gauss",
 plot1.line('x', 'y', source=source1_reference, line_width=2, line_alpha=0.6, line_color="gray", line_dash='dashed', legend='Reference')
 plot1.line('x', 'y', source=source1, line_width=3, legend="Your Gauss")
 
-plot2 = figure(plot_height=600, plot_width=int(phi*600), title="Block Party",
-              tools="crosshair,save", x_range=[0, 11], y_range=[0, phi*counts2.max()])
+plot2 = figure(plot_height=800, plot_width=int(phi*800), title="Block Party",
+              tools="save", x_range=[0, 11], y_range=[0, phi*counts2.max()])
 plot2.vbar(x='x', top='y', source=source2, width=0.8)
 
 plot3 = figure(plot_height=750, plot_width=750, title="Scatter!",
-              tools="crosshair,save", x_range=[-1, 1], y_range=[-1, 1], background_fill_color='#4169e1')
+              tools="save", x_range=[-1, 1], y_range=[-1, 1], background_fill_color='#4169e1')
 plot3.circle(x=0, y=0, fill_alpha=1, fill_color='#89cff0', radius=1)
 plot3.scatter(x='x', y='y', source=source3, radius=0.005, fill_color='#FF0000', fill_alpha=0.8, line_color=None)
 
@@ -81,10 +82,8 @@ title2 = TextInput(title="Plot Title", value='Block Party')
 num_sample = TextInput(title='Number of Samples', value='10')
 sample = Button(label="Sample", button_type="success")
 reset2 = Button(label="Reset", button_type="success")
-columns2 = [
-        TableColumn(field="x", title="Sample", formatter=NumberFormatter(text_align='center')),
-        TableColumn(field="y", title="Count", formatter=NumberFormatter(text_align='center')),
-    ]
+columns2 = [TableColumn(field="x", title="Event", formatter=NumberFormatter(text_align='center')),
+            TableColumn(field="y", title="Count", formatter=NumberFormatter(text_align='center'))]
 data_table2 = DataTable(source=source2,
                         columns=columns2,
                         index_position=None,
@@ -103,11 +102,11 @@ div3 = Div(text="""<p style="border:3px; border-style:solid; border-color:#FF000
                     Scatter! is a game that we can play, similar to Buffon's Needle, that allows us to approximate &#960. 
                     This is done by randomly throwing darts at a dart board. Our approximation is computed with the ratio of in to out.</p>""",
                     width=300, height=125)
-columns3 = [
-        TableColumn(field="x", title="In", formatter=NumberFormatter(text_align='center')),
-        TableColumn(field="y", title="Out", formatter=NumberFormatter(text_align='center')),
-        TableColumn(field="z", title="Total", formatter=NumberFormatter(text_align='center', format='0.0000 %'))]
-data_table3 = DataTable(source=source3,
+columns3 = [TableColumn(field="w", title="#", formatter=NumberFormatter(text_align='center')),
+            TableColumn(field="x", title="In", formatter=NumberFormatter(text_align='center')), 
+            TableColumn(field="y", title="Out", formatter=NumberFormatter(text_align='center')),
+            TableColumn(field="z", title="Total", formatter=NumberFormatter(text_align='center'))]
+data_table3 = DataTable(source=ratio_report3,
                         columns=columns3,
                         index_position=None,
                         fit_columns=True,
@@ -124,10 +123,9 @@ type_selection4 = Select(title="Select Frequency Type:",
                          value="Totals",
                          options=["Totals", "Cummulative Frequency", "Relative Frequency"])
 reset4 = Button(label="Reset", button_type="success")
-columns4 = [
-        TableColumn(field="x", title="Roll", formatter=NumberFormatter(text_align='center')),
-        TableColumn(field="y", title="Count", formatter=NumberFormatter(text_align='center')),
-        TableColumn(field="z", title="Rel. Freq.", formatter=NumberFormatter(text_align='center', format='0.0000 %'))]
+columns4 = [TableColumn(field="x", title="Roll", formatter=NumberFormatter(text_align='center')),
+            TableColumn(field="y", title="Count", formatter=NumberFormatter(text_align='center')),
+            TableColumn(field="z", title="Rel. Freq.", formatter=NumberFormatter(text_align='center', format='0.0000 %'))]
 data_table4 = DataTable(source=source4,
                         columns=columns4,
                         index_position=None,
@@ -254,7 +252,7 @@ reset2.on_click(reset_window_2)
 
 
 def update_window_3():
-    global source3, ratio
+    global source3, ratio, ratio_report3
     # Sample = sample.button_type
     N = num_sample3.value
     try:
@@ -267,30 +265,35 @@ def update_window_3():
         num_sample.title = 'Number of Samples'
         num_sample.value = str(N)
     except:
-        N = 1
+        N = 1000
         N = int(N)
         num_sample.title = 'Number of Samples: (Please enter a positive integer)'
         num_sample.value = str(N)
+    
     x3 = source3.data['x']
-    # print("x3 type:", type(x3))
-    y3 = source3.data['y']
-    # print("y3 type:", type(y3))
     x3_temp = np.random.uniform(low=-1, high=1, size=N)
-    # print("x3_temp:", x3_temp, "type:", type(x3))
-    y3_temp = np.random.uniform(low=-1, high=1, size=N)
-    # print("y3_temp:", y3_temp, "type:", type(y3))
     x3 = np.concatenate((x3, x3_temp))
-    # print("x3_conc:", x3[-5:])
+    y3 = source3.data['y']
+    y3_temp = np.random.uniform(low=-1, high=1, size=N)
     y3 = np.concatenate((y3, y3_temp))
-    # print("y3_conc:", y3[-5:])
-    r = np.sqrt(x3**2+y3**2)
+
+    r = np.sqrt(x3**2 + y3**2)
     len_r = len(r)
     in_r = len([i for i in r if i <= 1])
     out_r = len([i for i in r if i > 1])
-    ratio = 4*in_r/len_r
-    # print("len:", len_r, "in:", in_r, "ratio:", ratio)
+    
+    I = ratio_report3.data['w']
+    I[0] += 1
+    IN = ratio_report3.data['x']
+    IN[0] += in_r
+    OUT = ratio_report3.data['y']
+    OUT[0] += out_r
+    TOTAL = ratio_report3.data['z']
+    TOTAL[0] += len_r 
+    ratio = 4*IN[0]/TOTAL[0]
     output3.value = str(np.round(ratio, 8))
-    source3.data = dict(x=x3, y=y3)
+    source3.data = dict(x=x3_temp, y=y3_temp)
+    ratio_report3.data = dict(w=I, x=IN, y=OUT, z=TOTAL)
 
 
 sample3.on_click(update_window_3)
