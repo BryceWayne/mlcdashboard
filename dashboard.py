@@ -7,7 +7,7 @@ from bokeh.models.widgets import NumberFormatter, TableColumn, Dropdown, RadioBu
 from bokeh.plotting import figure
 from pprint import pprint
 
-np.random.seed(42)
+# np.random.seed(42)
 
 # Set up data
 N = 1000
@@ -52,9 +52,9 @@ plot2.vbar(x='x', top='y', source=source2, width=0.8)
 plot3 = figure(plot_height=500, plot_width=500, title="Scatter!",
               tools="save", x_range=[-1, 1], y_range=[-1, 1], background_fill_color='#4169e1')
 plot3.circle(x=0, y=0, fill_alpha=1, fill_color='#89cff0', radius=1)
-plot3.scatter(x='x', y='y', source=source3, radius=0.005, fill_color='#FF0000', fill_alpha=0.8, line_color=None)
-plot3_below = figure(plot_height=500, plot_width=800, title="Running Average", tools="save", x_range=[0, 10], y_range=[3.0, 3.5])
-plot3_below.circle('x', 'y', source=running_averages, size=10, alpha=0.2, legend="Ratio")
+plot3.scatter(x='x', y='y', source=source3, radius=0.0075, fill_color='#FF0000', fill_alpha=0.8, line_color=None)
+plot3_below = figure(plot_height=500, plot_width=800, title="Running Average", tools="save", x_range=[0, 10], y_range=[3.0, 3.3])
+plot3_below.circle('x', 'y', source=running_averages, size=10, fill_color='#FF0000', alpha=0.2, legend="Ratio")
 plot3_below.line('x', 'z', source=running_averages, line_width=2, line_dash='dashed', legend="Average")
 
 plot4 = figure(plot_height=700, plot_width=int(phi*700), title="Dice Party",
@@ -301,7 +301,7 @@ def update_window_3():
         num_sample.title = 'Number of Samples: (Please enter a positive integer)'
         num_sample.value = str(N)
 
-    L = range(len(running_averages.data['y']) + 1)
+    L = range(1, len(running_averages.data['y']) + 2)
     averages = running_averages.data['y'] + [4*in_r/len_r]
     running_average = running_averages.data['z'] + [ratio]
     if len(L) > plot3_below.x_range.end:
@@ -316,7 +316,7 @@ def reset_window_3():
     # print("Reset")
     source3.data = dict(x=[], y=[])
     ratio_report3.data = dict(w=[0], x=[0], y=[0], z=[0], a=[0])
-    running_averages.data = dict(x=[0], y=[0], z=[0])
+    running_averages.data = dict(x=[], y=[], z=[])
     plot3_below.x_range.end = 10
     output3.value = '0'
     num_sample3.value = '1000'
