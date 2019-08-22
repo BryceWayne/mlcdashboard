@@ -29,7 +29,8 @@ source2 = ColumnDataSource(data=dict(x=unique2, y=counts2))
 
 # x3 = np.random
 source3 = ColumnDataSource(data=dict(x=[], y=[]))
-ratio_report3 = ColumnDataSource(data=dict(w=[0], x=[0], y=[0], z=[0]))
+ratio_report3 = ColumnDataSource(data=dict(w=[0], x=[0], y=[0], z=[0], a=[0]))
+running_averages = ColumnDataSource(data=dict(x=[0], y=[0], z=[0]))
 
 x4 = np.random.randint(low=1, high=7, size=100)
 unique4, counts4 = np.unique(x4, return_counts=True)
@@ -48,10 +49,13 @@ plot2 = figure(plot_height=800, plot_width=int(phi*800), title="Block Party",
               tools="save", x_range=[0, 11], y_range=[0, phi*counts2.max()])
 plot2.vbar(x='x', top='y', source=source2, width=0.8)
 
-plot3 = figure(plot_height=750, plot_width=750, title="Scatter!",
+plot3 = figure(plot_height=500, plot_width=500, title="Scatter!",
               tools="save", x_range=[-1, 1], y_range=[-1, 1], background_fill_color='#4169e1')
 plot3.circle(x=0, y=0, fill_alpha=1, fill_color='#89cff0', radius=1)
 plot3.scatter(x='x', y='y', source=source3, radius=0.005, fill_color='#FF0000', fill_alpha=0.8, line_color=None)
+plot3_below = figure(plot_height=500, plot_width=800, title="Running Average", tools="save", x_range=[0, 10], y_range=[0, 5])
+plot3_below.circle('x', 'y', source=running_averages, size=10, alpha=0.2, legend="Ratio")
+plot3_below.line('x', 'z', source=running_averages, line_width=2, line_dash='dashed', legend="Average")
 
 plot4 = figure(plot_height=700, plot_width=int(phi*700), title="Dice Party",
               tools="save", x_range=[0, 7], y_range=[0, phi*max(counts4)])
@@ -111,7 +115,7 @@ data_table3 = DataTable(source=ratio_report3,
                         index_position=None,
                         fit_columns=True,
                         width=275,
-                        height=180,
+                        height=50,
                         selectable=False)
 
 title4 = TextInput(title="Dice Party", value='Dice Party')
@@ -252,7 +256,7 @@ reset2.on_click(reset_window_2)
 
 
 def update_window_3():
-    global source3, ratio, ratio_report3
+    global source3, ratio_report3, running_averages
     # Sample = sample.button_type
     N = num_sample3.value
     try:
@@ -264,45 +268,56 @@ def update_window_3():
             N = int(abs(N))
         num_sample.title = 'Number of Samples'
         num_sample.value = str(N)
+
+        x3 = source3.data['x']
+        x3_temp = np.random.uniform(low=-1, high=1, size=N)
+        x3 = np.concatenate((x3, x3_temp))
+        y3 = source3.data['y']
+        y3_temp = np.random.uniform(low=-1, high=1, size=N)
+        y3 = np.concatenate((y3, y3_temp))
+
+        r = np.sqrt(x3**2 + y3**2)
+        len_r = len(r)
+        in_r = len([i for i in r if i <= 1])
+        out_r = len([i for i in r if i > 1])
+        
+        I = ratio_report3.data['w']
+        I[0] += 1
+        IN = ratio_report3.data['x']
+        IN[0] += in_r
+        OUT = ratio_report3.data['y']
+        OUT[0] += out_r
+        TOTAL = ratio_report3.data['z']
+        TOTAL[0] += len_r 
+        
+        ratio = 4*IN[0]/TOTAL[0]
+        output3.value = str(np.round(ratio, 8))
+
+        source3.data = dict(x=x3_temp, y=y3_temp)
+        ratio_report3.data = dict(w=I, x=IN, y=OUT, z=TOTAL)
     except:
         N = 1000
         N = int(N)
         num_sample.title = 'Number of Samples: (Please enter a positive integer)'
         num_sample.value = str(N)
-    
-    x3 = source3.data['x']
-    x3_temp = np.random.uniform(low=-1, high=1, size=N)
-    x3 = np.concatenate((x3, x3_temp))
-    y3 = source3.data['y']
-    y3_temp = np.random.uniform(low=-1, high=1, size=N)
-    y3 = np.concatenate((y3, y3_temp))
 
-    r = np.sqrt(x3**2 + y3**2)
-    len_r = len(r)
-    in_r = len([i for i in r if i <= 1])
-    out_r = len([i for i in r if i > 1])
-    
-    I = ratio_report3.data['w']
-    I[0] += 1
-    IN = ratio_report3.data['x']
-    IN[0] += in_r
-    OUT = ratio_report3.data['y']
-    OUT[0] += out_r
-    TOTAL = ratio_report3.data['z']
-    TOTAL[0] += len_r 
-    ratio = 4*IN[0]/TOTAL[0]
-    output3.value = str(np.round(ratio, 8))
-    source3.data = dict(x=x3_temp, y=y3_temp)
-    ratio_report3.data = dict(w=I, x=IN, y=OUT, z=TOTAL)
-
+    L = range(len(running_averages.data['y']) + 1)
+    averages = running_averages.data['y'] + [4*in_r/len_r]
+    running_average = running_averages.data['z'] + [ratio]
+    if len(L) > plot3_below.x_range.end:
+        plot3_below.x_range.end = len(L)
+    running_averages.data = dict(x=L, y=averages, z=running_average)
 
 sample3.on_click(update_window_3)
 
 
 def reset_window_3():
-    global source3
+    global source3, ratio_report3, running_averages
     # print("Reset")
     source3.data = dict(x=[], y=[])
+    ratio_report3.data = dict(w=[0], x=[0], y=[0], z=[0], a=[0])
+    running_averages.data = dict(x=[0], y=[0], z=[0])
+    plot3_below.x_range.end = 10
     output3.value = '0'
     num_sample3.value = '1000'
 
@@ -488,7 +503,7 @@ inputs4 = column(title4, dropdown4, type_selection4, num_sides, roll4, reset4, d
 inputs5 = column(title5, dropdown5, reset5)
 tab1 = row(inputs1, plot1, width=int(phi*400))
 tab2 = row(inputs2, plot2, width=int(phi*400))
-tab3 = row(inputs3, plot3, width=int(phi*400))
+tab3 = row(inputs3, plot3, plot3_below, width=int(phi*400))
 tab4 = row(inputs4, plot4, width=int(phi*400))
 tab5 = row(inputs5, plot5, width=int(phi*400))
 tab1 = Panel(child=tab1, title="Like a Gauss")
