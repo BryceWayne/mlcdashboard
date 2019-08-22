@@ -30,7 +30,7 @@ source2 = ColumnDataSource(data=dict(x=unique2, y=counts2))
 # x3 = np.random
 source3 = ColumnDataSource(data=dict(x=[], y=[]))
 ratio_report3 = ColumnDataSource(data=dict(w=[0], x=[0], y=[0], z=[0], a=[0]))
-running_averages = ColumnDataSource(data=dict(x=[0], y=[0], z=[0]))
+running_averages = ColumnDataSource(data=dict(x=[], y=[], z=[]))
 
 x4 = np.random.randint(low=1, high=7, size=100)
 unique4, counts4 = np.unique(x4, return_counts=True)
@@ -53,7 +53,7 @@ plot3 = figure(plot_height=500, plot_width=500, title="Scatter!",
               tools="save", x_range=[-1, 1], y_range=[-1, 1], background_fill_color='#4169e1')
 plot3.circle(x=0, y=0, fill_alpha=1, fill_color='#89cff0', radius=1)
 plot3.scatter(x='x', y='y', source=source3, radius=0.005, fill_color='#FF0000', fill_alpha=0.8, line_color=None)
-plot3_below = figure(plot_height=500, plot_width=800, title="Running Average", tools="save", x_range=[0, 10], y_range=[0, 5])
+plot3_below = figure(plot_height=500, plot_width=800, title="Running Average", tools="save", x_range=[0, 10], y_range=[3.0, 3.5])
 plot3_below.circle('x', 'y', source=running_averages, size=10, alpha=0.2, legend="Ratio")
 plot3_below.line('x', 'z', source=running_averages, line_width=2, line_dash='dashed', legend="Average")
 
