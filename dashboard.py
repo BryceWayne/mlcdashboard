@@ -2,14 +2,15 @@ import numpy as np
 from bokeh.io import curdoc, output_file
 from bokeh.layouts import row, column
 from bokeh.models import ColumnDataSource, Range1d
-from bokeh.models.widgets import Slider, TextInput, Tabs, Panel, Button, DataTable, Div
+from bokeh.models.widgets import Slider, TextInput, Tabs, Panel, Button, DataTable, Div, CheckboxGroup
 from bokeh.models.widgets import NumberFormatter, TableColumn, Dropdown, RadioButtonGroup, Select
 from bokeh.plotting import figure
 from pprint import pprint
 
-# np.random.seed(42)
 
-# Set up data
+"""
+SETUP DATA
+"""
 N = 1000
 sigma = 1
 pi = np.pi
@@ -37,25 +38,25 @@ unique4, counts4 = np.unique(x4, return_counts=True)
 source4 = ColumnDataSource(data=dict(label=unique4, value=counts4, x=unique4, y=counts4, z=counts4/counts4.sum()))
 
 source5 = ColumnDataSource(data=dict(x=[], y=[]))
+
 """
-Set up plot
+SETUP PLOTS
 """
-plot1 = figure(plot_height=400, plot_width=int(phi*600), title="Oh my Gauss",
+plot1 = figure(plot_height=600, plot_width=int(phi*600), title="Oh my Gauss",
               tools="save", x_range=[x1.min(), x1.max()], y_range=[0, phi*y1.max()])
-plot1.line('x', 'y', source=source1_reference, line_width=2, line_alpha=0.6, line_color="gray", line_dash='dashed', legend='Reference')
+plot1.line('x', 'y', source=source1_reference, line_width=3*1/phi, line_alpha=0.6, line_color="gray", line_dash='dashed', legend='Reference')
 plot1.line('x', 'y', source=source1, line_width=3, legend="Your Gauss")
 
-plot2 = figure(plot_height=800, plot_width=int(phi*800), title="Block Party",
+plot2 = figure(plot_height=700, plot_width=int(phi*700), title="Block Party",
               tools="save", x_range=[0, 11], y_range=[0, phi*counts2.max()])
-plot2.vbar(x='x', top='y', source=source2, width=0.8)
+plot2.vbar(x='x', top='y', source=source2, width=1/phi)
 
-plot3 = figure(plot_height=500, plot_width=500, title="Scatter!",
-              tools="save", x_range=[-1, 1], y_range=[-1, 1], background_fill_color='#4169e1')
+plot3 = figure(plot_height=500, plot_width=500, title="Scatter!", tools="", x_range=[-1, 1], y_range=[-1, 1], background_fill_color='#4169e1')
 plot3.circle(x=0, y=0, fill_alpha=1, fill_color='#89cff0', radius=1)
 plot3.scatter(x='x', y='y', source=source3, radius=0.0075, fill_color='#FF0000', fill_alpha=0.8, line_color=None)
 plot3_below = figure(plot_height=500, plot_width=800, title="Running Average", tools="save", x_range=[0, 10], y_range=[3.0, 3.3])
-plot3_below.circle('x', 'y', source=running_averages, size=10, fill_color='#FF0000', alpha=0.2, legend="Ratio")
-plot3_below.line('x', 'z', source=running_averages, line_width=2, line_dash='dashed', legend="Average")
+plot3_below.circle('x', 'y', source=running_averages, size=10, fill_color='#FF0000', alpha=0.2, legend="Sample")
+plot3_below.line('x', 'z', source=running_averages, line_width=2, line_dash='dashed', legend="Running Average")
 
 plot4 = figure(plot_height=700, plot_width=int(phi*700), title="Dice Party",
               tools="save", x_range=[0, 7], y_range=[0, phi*max(counts4)])
@@ -65,17 +66,18 @@ plot5 = figure(plot_height=750, plot_width=750, title="Wheel Party",
               tools="save", x_range=[-1, 1], y_range=[-1, 1], background_fill_color='#FFFFFF')
 
 """
-Set up widgets
+SETUP WIDGETS
 """
+div1 = Div(text="""<p style="border:3px; border-style:solid; border-color:#FF0000; padding: 1em;">
+                    Oh My Gauss is designed to let you explore what various kinds of normal distributions look like. 
+                    Try changing the Standard Deviation or Average to see how this affects the plot.</p>""",
+                    width=300, height=130)
 title1 = TextInput(title="Plot Title", value='Oh my Gauss')
 sigma = TextInput(title="Standard Deviation", value="1.0")
 mu = TextInput(title="Average", value="0.0")
 recompute1 = Button(label="Recompute", button_type="success")
 reset1 = Button(label="Reset", button_type="success")
-div1 = Div(text="""<p style="border:3px; border-style:solid; border-color:#FF0000; padding: 1em;">
-                    Oh My Gauss is designed to let you explore what various kinds of normal distributions look like. 
-                    Try changing the Standard Deviation or Average to see how this affects the plot.</p>""",
-                    width=300, height=130)
+checkbox1 = CheckboxGroup(labels=["Reference"], active=[1, 0])
 
 div2 = Div(text="""<p style="border:3px; border-style:solid; border-color:#FF0000; padding: 1em;">
                     Block Party demonstrates what occurs when there is a uniform distribution of events. 
@@ -104,7 +106,7 @@ reset3 = Button(label="Reset", button_type="success")
 output3 = TextInput(title="Ratio", value=str(ratio))
 div3 = Div(text="""<p style="border:3px; border-style:solid; border-color:#FF0000; padding: 0.5em;">
                     Scatter! is a game that we can play, similar to Buffon's Needle, that allows us to approximate &#960. 
-                    This is done by randomly throwing darts at a dart board. Our approximation is computed with the ratio of in to out.</p>""",
+                    This is done by randomly throwing darts at a dart board. We obtain our approximation by computing 4*In/Total.</p>""",
                     width=300, height=125)
 columns3 = [TableColumn(field="w", title="#", formatter=NumberFormatter(text_align='center')),
             TableColumn(field="x", title="In", formatter=NumberFormatter(text_align='center')), 
@@ -129,7 +131,7 @@ type_selection4 = Select(title="Select Frequency Type:",
 reset4 = Button(label="Reset", button_type="success")
 columns4 = [TableColumn(field="x", title="Roll", formatter=NumberFormatter(text_align='center')),
             TableColumn(field="y", title="Count", formatter=NumberFormatter(text_align='center')),
-            TableColumn(field="z", title="Rel. Freq.", formatter=NumberFormatter(text_align='center', format='0.0000 %'))]
+            TableColumn(field="z", title="Rel. Freq.", formatter=NumberFormatter(text_align='center', format='0.00 %'))]
 data_table4 = DataTable(source=source4,
                         columns=columns4,
                         index_position=None,
@@ -192,12 +194,15 @@ def recompute_window_1():
     plot1.y_range.end = phi*max([y1.max(), v1.max()])
     source1.data = dict(x=x1, y=y1)
 
+
 def reset_window_1():
-    global pi, source1
+    global pi, source1x
     Sigma = 1.
     Mu = 0.
     x1 = np.linspace(Mu - 6 * Sigma, Mu + 6 * Sigma, N)
     y1 = 1 / (Sigma * np.sqrt(2 * pi)) * np.exp(-0.5 * ((x1 - Mu) / Sigma) ** 2)
+    u1 = np.linspace(mu - 6 * sigma, mu + 6 * sigma, N)
+    v1 = 1/(sigma*np.sqrt(2*pi))*np.exp(-0.5*((u1-mu)/sigma)**2)
     plot1.title.text = "Oh My Gauss"
     plot1.x_range.start = x1.min()
     plot1.x_range.end = x1.max()
@@ -208,9 +213,26 @@ def reset_window_1():
     sigma.title = "Standard Deviation:"
     mu.title = "Average:"
     source1.data = dict(x=x1, y=y1)
+    source1_reference.data = dict(x=u1, y=v1)
+
 
 recompute1.on_click(recompute_window_1)
 reset1.on_click(reset_window_1)
+
+
+def update_checkbox1(new):
+    global source1_reference
+    val = checkbox1.active
+    if 0 in val:
+        u1 = np.linspace(0 - 6 * 1, 0 + 6 * 1, N)
+        v1 = 1/(np.sqrt(2*pi))*np.exp(-0.5*(u1-0)**2)
+        source1_reference.data = dict(x=u1, y=v1)
+    else:
+        source1_reference.data = dict(x=[], y=[])
+
+
+checkbox1.on_click(update_checkbox1)
+
 
 def update_window_2():
     global source2
@@ -496,7 +518,7 @@ reset5.on_click(reset_window_5)
 
 
 # Set up layouts and add to document
-inputs1 = column(div1, title1, sigma, mu, recompute1, reset1)
+inputs1 = column(div1, title1, sigma, mu, recompute1, reset1, checkbox1)
 inputs2 = column(div2, title2, num_sample, sample, reset2, data_table2, tot_sample2)
 inputs3 = column(div3, title3, num_sample3, sample3, reset3, data_table3, output3)
 inputs4 = column(title4, dropdown4, type_selection4, num_sides, roll4, reset4, data_table4)
