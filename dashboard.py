@@ -125,9 +125,7 @@ menu4 = [(str(x), str(x)) for x in range(1, 7)]
 dropdown4 = Dropdown(label="Number of Dice", button_type="warning", menu=menu4)
 num_sides = TextInput(title="Number of Sides:", value="6")
 roll4 = Button(label='Roll', button_type='success')
-type_selection4 = Select(title="Select Frequency Type:",
-                         value="Totals",
-                         options=["Totals", "Cummulative Frequency", "Relative Frequency"])
+type_selection4 = Select(title="Select Frequency Type:", value="Totals", options=["Totals", "Cummulative Frequency", "Relative Frequency"])
 reset4 = Button(label="Reset", button_type="success")
 columns4 = [TableColumn(field="x", title="Roll", formatter=NumberFormatter(text_align='center')),
             TableColumn(field="y", title="Count", formatter=NumberFormatter(text_align='center')),
@@ -196,7 +194,7 @@ def recompute_window_1():
 
 
 def reset_window_1():
-    global pi, source1x
+    global pi, source1
     Sigma = 1.
     Mu = 0.
     x1 = np.linspace(Mu - 6 * Sigma, Mu + 6 * Sigma, N)
