@@ -196,23 +196,23 @@ def recompute_window_1():
 
 
 def reset_window_1():
-    global pi, source1
+    global source1
     Sigma = 1.
     Mu = 0.
     x1 = np.linspace(Mu - 6 * Sigma, Mu + 6 * Sigma, N)
     y1 = 1 / (Sigma * np.sqrt(2 * pi)) * np.exp(-0.5 * ((x1 - Mu) / Sigma) ** 2)
-    u1 = np.linspace(mu - 6 * sigma, mu + 6 * sigma, N)
-    v1 = 1/(sigma*np.sqrt(2*pi))*np.exp(-0.5*((u1-mu)/sigma)**2)
+    u1 = np.linspace(Mu - 6 * Sigma, Mu + 6 * Sigma, N)
+    v1 = 1/(Sigma*np.sqrt(2*pi))*np.exp(-0.5*((u1-Mu)/Sigma)**2)
     plot1.title.text = "Oh My Gauss"
     plot1.x_range.start = x1.min()
     plot1.x_range.end = x1.max()
-    plot1.y_range.start = 0
+    plot1.y_range.start = 0.
     plot1.y_range.end = phi * y1.max()
     sigma.value = str(1.0)
     mu.value = str(0.0)
     sigma.title = "Standard Deviation:"
     mu.title = "Average:"
-    checkbox1.active = [0, 1]
+    checkbox1.active = [1, 0]
     source1.data = dict(x=x1, y=y1)
     source1_reference.data = dict(x=u1, y=v1)
 
@@ -230,7 +230,6 @@ def update_checkbox1(new):
         source1_reference.data = dict(x=u1, y=v1)
     else:
         source1_reference.data = dict(x=[], y=[])
-
 
 
 checkbox1.on_click(update_checkbox1)
