@@ -222,14 +222,15 @@ reset1.on_click(reset_window_1)
 
 
 def update_checkbox1(new):
-    global source1_reference
+    global source1, source1_reference
     val = checkbox1.active
     if 0 in val:
         u1 = np.linspace(0 - 6 * 1, 0 + 6 * 1, N)
         v1 = 1/(np.sqrt(2*pi))*np.exp(-0.5*(u1-0)**2)
         source1_reference.data = dict(x=u1, y=v1)
     else:
-        source1_reference.data = dict(x=[], y=[])
+        u1, v1 = [], []
+        source1_reference.data = dict(x=u1, y=v1)
 
 
 checkbox1.on_click(update_checkbox1)
@@ -532,10 +533,10 @@ tab5 = row(inputs5, plot5, width=int(phi*400))
 tab1 = Panel(child=tab1, title="Like a Gauss")
 tab2 = Panel(child=tab2, title="Block Party")
 tab3 = Panel(child=tab3, title="Scatter!")
-tab4 = Panel(child=tab4, title="Dice Party")
+tab4 = Panel(child=tab4, title="Roll")
 tab5 = Panel(child=tab5, title="Wheel Party")
 tabs = Tabs(tabs=[tab1, tab2, tab3, tab4, tab5])
 
 curdoc().title = "MCC MLC Dashboard"
-curdoc().theme = 'light_minimal'
+curdoc().theme = 'caliber'
 curdoc().add_root(tabs)
