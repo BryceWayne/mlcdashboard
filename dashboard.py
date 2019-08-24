@@ -154,7 +154,9 @@ reset5 = Button(label="Reset",
                 button_type="success")
 
 
-# Set up callbacks
+"""
+Set up callbacks
+"""
 def update_title(attrname, old, new):
     plot1.title.text = title1.value
     plot2.title.text = title2.value
@@ -210,6 +212,7 @@ def reset_window_1():
     mu.value = str(0.0)
     sigma.title = "Standard Deviation:"
     mu.title = "Average:"
+    checkbox1.active = [0, 1]
     source1.data = dict(x=x1, y=y1)
     source1_reference.data = dict(x=u1, y=v1)
 
@@ -227,6 +230,7 @@ def update_checkbox1(new):
         source1_reference.data = dict(x=u1, y=v1)
     else:
         source1_reference.data = dict(x=[], y=[])
+
 
 
 checkbox1.on_click(update_checkbox1)
