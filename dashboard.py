@@ -33,7 +33,10 @@ source3 = ColumnDataSource(data=dict(x=[], y=[]))
 ratio_report3 = ColumnDataSource(data=dict(w=[0], x=[0], y=[0], z=[0], a=[0]))
 running_averages = ColumnDataSource(data=dict(x=[], y=[], z=[]))
 
-x4 = np.random.randint(low=1, high=7, size=100)
+num_dice = 2
+x4 = np.random.randint(low=1, high=7, size=1000)
+for _ in range(num_dice-1):
+    x4 += np.random.randint(low=1, high=7, size=1000)
 unique4, counts4 = np.unique(x4, return_counts=True)
 source4 = ColumnDataSource(data=dict(label=unique4, value=counts4, x=unique4, y=counts4, z=counts4/counts4.sum()))
 
@@ -44,8 +47,8 @@ SETUP PLOTS
 """
 plot1 = figure(plot_height=600, plot_width=int(phi*600), title="Oh my Gauss",
               tools="save", x_range=[x1.min(), x1.max()], y_range=[0, phi*y1.max()])
-plot1.line('x', 'y', source=source1_reference, line_width=3*1/phi, line_alpha=0.6, line_color="gray", line_dash='dashed', legend='Reference')
-plot1.line('x', 'y', source=source1, line_width=3, legend="Your Gauss")
+plot1.line('x', 'y', source=source1_reference, line_width=3*1/phi, line_alpha=0.6, line_color="gray", line_dash='dashed', legend_label='Reference')
+plot1.line('x', 'y', source=source1, line_width=3, legend_label="Your Gauss")
 
 plot2 = figure(plot_height=700, plot_width=int(phi*700), title="Block Party",
               tools="save", x_range=[0, 11], y_range=[0, phi*counts2.max()])
@@ -55,12 +58,12 @@ plot3 = figure(plot_height=500, plot_width=500, title="Scatter!", tools="", x_ra
 plot3.circle(x=0, y=0, fill_alpha=1, fill_color='#89cff0', radius=1)
 plot3.scatter(x='x', y='y', source=source3, radius=0.0075, fill_color='#FF0000', fill_alpha=0.8, line_color=None)
 plot3_below = figure(plot_height=500, plot_width=800, title="Running Average", tools="save", x_range=[0, 10], y_range=[3.0, 3.3])
-plot3_below.circle('x', 'y', source=running_averages, size=10, fill_color='#FF0000', alpha=0.2, legend="Sample")
-plot3_below.line('x', 'z', source=running_averages, line_width=2, line_dash='dashed', legend="Running Average")
+plot3_below.circle('x', 'y', source=running_averages, size=10, fill_color='#FF0000', alpha=0.2, legend_label="Sample")
+plot3_below.line('x', 'z', source=running_averages, line_width=2, line_dash='dashed', legend_label="Running Average")
 
 plot4 = figure(plot_height=700, plot_width=int(phi*700), title="Dice Party",
-              tools="save", x_range=[0, 7], y_range=[0, phi*max(counts4)])
-plot4.vbar(x='label', top='value', source=source4, width=0.8)
+              tools="save", x_range=[1, 13], y_range=[0, phi*max(counts4)])
+plot4.vbar(x='label', top='value', source=source4, width=1/phi)
 
 plot5 = figure(plot_height=750, plot_width=750, title="Wheel Party",
               tools="save", x_range=[-1, 1], y_range=[-1, 1], background_fill_color='#FFFFFF')
@@ -121,8 +124,7 @@ data_table3 = DataTable(source=ratio_report3,
                         selectable=False)
 
 title4 = TextInput(title="Dice Party", value='Dice Party')
-menu4 = [(str(x), str(x)) for x in range(1, 7)]
-dropdown4 = Dropdown(label="Number of Dice", button_type="warning", menu=menu4)
+num_dice = TextInput(title="Number of Dice", value="2")
 num_sides = TextInput(title="Number of Sides:", value="6")
 roll4 = Button(label='Roll', button_type='success')
 type_selection4 = Select(title="Select Frequency Type:", value="Totals", options=["Totals", "Cummulative Frequency", "Relative Frequency"])
@@ -235,8 +237,7 @@ def update_checkbox1(new):
 
 checkbox1.on_click(update_checkbox1)
 
-
-def update_window_2():
+def update_window_2(attr, new, old):
     global source2
     # Sample = sample.button_type
     N = num_sample.value
@@ -264,8 +265,37 @@ def update_window_2():
     source2.data = dict(x=unique, y=counts)
 
 
-sample.on_click(update_window_2)
+num_sample.on_change('value', update_window_2)
 
+def update_window_2_click():
+    global source2
+    # Sample = sample.button_type
+    N = num_sample.value
+    try:
+        N = float(N)
+        N = np.round(N, 0)
+        if N > 0:
+            N = int(N)
+        else:
+            N = int(abs(N))
+        num_sample.title = 'Number of Samples'
+        num_sample.value = str(N)
+    except:
+        N = 10
+        N = int(N)
+        num_sample.title = 'Number of Samples: (Please enter a positive integer)'
+        num_sample.value = str(N)
+    numbers = np.random.randint(low=1, high=11, size=N)
+    count = source2.data['y']
+    for x in numbers:
+        count[x - 1] += 1
+    unique, counts = source2.data['x'], count
+    plot2.y_range.end = phi*counts.max()
+    tot_sample2.value = f"{counts.sum()}"
+    source2.data = dict(x=unique, y=counts)
+
+
+sample.on_click(update_window_2_click)
 
 def reset_window_2():
     x2 = np.random.randint(low=1, high=11, size=100)
@@ -300,7 +330,7 @@ def update_window_3():
         y3_temp = np.random.uniform(low=-1, high=1, size=N)
         y3 = np.concatenate((y3, y3_temp))
 
-        r = np.sqrt(x3**2 + y3**2)
+        r = np.sqrt(x3_temp**2 + y3_temp**2)
         len_r = len(r)
         in_r = len([i for i in r if i <= 1])
         out_r = len([i for i in r if i > 1])
@@ -312,8 +342,7 @@ def update_window_3():
         OUT = ratio_report3.data['y']
         OUT[0] += out_r
         TOTAL = ratio_report3.data['z']
-        TOTAL[0] += len_r 
-        
+        TOTAL[0] += int(abs(N))
         ratio = 4*IN[0]/TOTAL[0]
         output3.value = str(np.round(ratio, 8))
 
@@ -350,12 +379,14 @@ reset3.on_click(reset_window_3)
 
 
 def update_window_4(attr, new, old):
-    global source4, type_selection4, dropdown4
-    # print('dropdown4 val:', dropdown4.value, "type:", type(dropdown4.value))
-    if dropdown4.value is None:
-        dropdown4.value = '1'
+    global source4, type_selection4, num_dice
+    if num_dice.value is None:
+        num_dice.value = '2'
     type_selection4.value = 'Totals'
-    dice = int(dropdown4.value)
+    dice = int(num_dice.value)
+    x4 = np.random.randint(low=1, high=7, size=1000)
+    for _ in range(dice-1):
+        x4 += np.random.randint(low=1, high=7, size=1000)
     sides = abs(int(num_sides.value))
     num_sides.value = str(sides)
     L = range(dice, sides*dice+1)
@@ -363,7 +394,7 @@ def update_window_4(attr, new, old):
     plot4.x_range.end = sides*dice + 1
     x4 = L
     y4 = np.zeros_like(L)
-    for _ in range(10000):
+    for _ in range(1000):
         temp = np.random.randint(low=1, high=sides+1, size=dice).sum()
         y4[temp-dice] += 1
 
@@ -381,15 +412,14 @@ def update_window_4(attr, new, old):
         source4.data['value'] = source4.data['y'] / sum(source4.data['y'])
 
 
-dropdown4.on_change('value', update_window_4)
+num_dice.on_change('value', update_window_4)
 
 
 def update_type_4(attr, new, old):
-    global source4, type_selection4, dropdown4, num_sides
-    # print('dropdown4 val:', dropdown4.value, "type:", type(dropdown4.value))
-    if dropdown4.value is None:
-        dropdown4.value = '1'
-    dice = int(dropdown4.value)
+    global source4, type_selection4, num_dice, num_sides
+    if num_dice.value is None:
+        num_dice.value = '2'
+    dice = int(num_dice.value)
     sides = abs(int(num_sides.value))
     num_sides.value = str(sides)
     L = range(dice, sides*dice+1)
@@ -415,11 +445,10 @@ type_selection4.on_change('value', update_type_4)
 
 
 def update_roll4():
-    global source4, dropdown4, type_selection4, num_sides
-    # print('dropdown4 val:', dropdown4.value, "type:", type(dropdown4.value))
-    if dropdown4.value is None:
-        dropdown4.value = '1'
-    dice = int(dropdown4.value)
+    global source4, num_dice, type_selection4, num_sides
+    if num_dice.value is None:
+        num_dice.value = '2'
+    dice = int(num_dice.value)
     sides = abs(int(num_sides.value))
     num_sides.value = str(sides)
     L = range(dice, sides*dice+1)
@@ -427,11 +456,9 @@ def update_roll4():
     plot4.x_range.end = sides*dice + 1
     x4 = L
     y4 = source4.data['y']
-    for _ in range(10000):
+    for _ in range(1000):
         temp = np.random.randint(low=1, high=sides+1, size=dice).sum()
-        # print("Temp roll:", temp)
         y4[temp-dice] += 1
-
     source4.data['label'] = source4.data['x'] = x4
     source4.data['y'] = y4
     source4.data['z'] = source4.data['y'] /sum(source4.data['y'])
@@ -450,10 +477,10 @@ roll4.on_click(update_roll4)
 
 
 def change_num_sides_4(attr, old, new):
-    global source4, type_selection4, dropdown4, num_sides
-    if dropdown4.value is None:
-        dropdown4.value = '1'
-    dice = int(dropdown4.value)
+    global source4, type_selection4, num_dice, num_sides
+    if num_dice.value is None:
+        num_dice.value = '2'
+    dice = int(num_dice.value)
     sides = abs(int(num_sides.value))
     num_sides.value = str(sides)
     plot4.x_range.start = dice - 1
@@ -461,7 +488,7 @@ def change_num_sides_4(attr, old, new):
     L = range(dice, sides * dice + 1)
     x4 = L
     y4 = np.zeros_like(L)
-    for _ in range(10000):
+    for _ in range(1000):
         temp = np.random.randint(low=1, high=sides + 1, size=dice)
         temp = temp.sum()
         y4[temp - dice] += 1
@@ -483,16 +510,20 @@ num_sides.on_change('value', change_num_sides_4)
 
 
 def reset_window_4():
-    global source4, dropdown4, type_selection4, num_sides
-    dropdown4.value = '1'
+    global source4, num_dice, type_selection4, num_sides
+    num_dice.value = '2'
+    dice = 2
     num_sides.value = '6'
+    sides = 6
     type_selection4.value = 'Totals'
-    x4 = np.random.randint(low=1, high=7, size=100)
+    x4 = np.random.randint(low=1, high=sides + 1, size=1000)
+    for _ in range(dice-1):
+        x4 += np.random.randint(low=1, high=sides + 1, size=1000)
     x4, y4 = np.unique(x4, return_counts=True)
     z4 = y4/y4.sum()
     source4.data = dict(label=x4, value=y4, x=x4, y=y4, z=z4)
-    plot4.x_range.start = 0
-    plot4.x_range.end = 7
+    plot4.x_range.start = dice - 1
+    plot4.x_range.end = sides*dice + 1
     plot4.y_range.start = 0
     plot4.y_range.end = phi*max(y4)
 
@@ -523,7 +554,7 @@ reset5.on_click(reset_window_5)
 inputs1 = column(div1, title1, sigma, mu, recompute1, reset1, checkbox1)
 inputs2 = column(div2, title2, num_sample, sample, reset2, data_table2, tot_sample2)
 inputs3 = column(div3, title3, num_sample3, sample3, reset3, data_table3, output3)
-inputs4 = column(title4, dropdown4, type_selection4, num_sides, roll4, reset4, data_table4)
+inputs4 = column(title4, num_dice, type_selection4, num_sides, roll4, reset4, data_table4)
 inputs5 = column(title5, dropdown5, reset5)
 tab1 = row(inputs1, plot1, width=int(phi*400))
 tab2 = row(inputs2, plot2, width=int(phi*400))
