@@ -4,3 +4,4 @@ gunicorn==19.9.0
 Flask-Sockets==0.2.1
 Numpy==1.17.0
 requests==2.21.0
+pandas==0.25.3
