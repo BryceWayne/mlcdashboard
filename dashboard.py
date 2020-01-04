@@ -6,6 +6,7 @@ from bokeh.models.widgets import Slider, TextInput, Tabs, Panel, Button, DataTab
 from bokeh.models.widgets import NumberFormatter, TableColumn, Dropdown, RadioButtonGroup, Select
 from bokeh.plotting import figure
 from pprint import pprint
+import pandas as pd
 
 
 """
@@ -40,7 +41,7 @@ for _ in range(num_dice-1):
 unique4, counts4 = np.unique(x4, return_counts=True)
 source4 = ColumnDataSource(data=dict(label=unique4, value=counts4, x=unique4, y=counts4, z=counts4/counts4.sum()))
 
-source5 = ColumnDataSource(data=dict(x=[], y=[]))
+source5 = ColumnDataSource(data=dict(x=[], y=[], z=[]))
 
 """
 SETUP PLOTS
@@ -65,8 +66,12 @@ plot4 = figure(plot_height=700, plot_width=int(phi*700), title="Dice Party",
               tools="save", x_range=[1, 13], y_range=[0, phi*max(counts4)])
 plot4.vbar(x='label', top='value', source=source4, width=1/phi)
 
-plot5 = figure(plot_height=750, plot_width=750, title="Wheel Party",
-              tools="save", x_range=[-1, 1], y_range=[-1, 1], background_fill_color='#FFFFFF')
+plot5 = figure(plot_height=600, plot_width=int(600*phi), title="Monte Carlo Casino",
+              tools="save", background_fill_color='#FFFFFF')
+plot5.line('x', 'y', source=source5, line_width=1, line_color="navy", legend_label="Bankroll")
+# plot5_bet = figure(plot_height=250, plot_width=int(250*phi), title="Bet Amounts",
+#               tools="save", background_fill_color='#FFFFFF')
+# plot5_bet.scatter('x', 'z', source=source5, radius=2, line_color=None, legend_label="Bet")
 
 """
 SETUP WIDGETS
@@ -140,9 +145,13 @@ data_table4 = DataTable(source=source4,
                         height=280,
                         selectable=False)
 
+div5 = Div(text="""<p style="border:3px; border-style:solid; border-color:#FF0000; padding: 0.5em;">
+                    The Monte Carlo Casino (MCC) is a virtual casino. 
+                    The purpose to MCC is to help you understand the long-term outcome of various betting strategies.</p>""",
+                    width=300, height=100)
 title5 = TextInput(title="Enter a title",
-                   value='Wheel Party')
-menu5 = [("Strategy" + str(x), "Strategy" + str(x)) for x in range(1, 3)]
+                   value='Monte Carlo Casino')
+menu5 = [("Strategy 1", "Strategy 1"), ("Strategy 2", "Strategy 2"), ("Strategy 3", "Strategy 3"),]
 dropdown5 = Dropdown(label="Pick Your Strategy",
                      button_type="warning",
                      menu=menu5)
@@ -152,8 +161,9 @@ table_max = TextInput(title="Table Max ($)",
                       value='500')
 bankroll = TextInput(title="Bankroll",
                      value='1000')
+roll5 = Button(label="Roll", button_type="success")
 reset5 = Button(label="Reset",
-                button_type="success")
+                button_type="primary")
 
 
 """
@@ -534,17 +544,86 @@ reset4.on_click(reset_window_4)
 def update_window_5(attr, new, old):
     if dropdown5.value is None:
         dropdown5.value = 'Strategy 1'
+    if int(table_max.value) <= int(table_min.value):
+        reset_window_5()
 
 
 for w in [dropdown5, table_min, table_max, bankroll]:
     w.on_change('value', update_window_5)
 
 
+def play5():
+    global source5, table_min, table_max, bankroll
+    GAMES = [{"game": 0, "bankroll": float(bankroll.value), "bet": float(table_min.value)}]
+    coming_out, bet = 0, float(table_min.value)
+    if dropdown5.value is None:
+        dropdown5.value = 'Strategy 1'
+    if dropdown5.value == 'Strategy 1':
+        while GAMES[-1]['bankroll'] >= GAMES[-1]['bet']:
+            init_roll = np.random.randint(low=1, high=7, size=2).sum()
+            game = {"game": len(GAMES), "bankroll": GAMES[-1]['bankroll'], "bet": float(table_min.value), "P": 0, "NP": 0, "Roll": init_roll}
+            # print(f"Game: {game}")
+            if init_roll in (2,3,12):
+                game["bankroll"] = game["bankroll"] - game["bet"]
+            elif init_roll in (7,11):
+                game["bankroll"] = game["bankroll"] + game["bet"]
+            else:
+                coming_out = init_roll
+                while coming_out == init_roll:
+                    roll = np.random.randint(low=1, high=7, size=2).sum()
+                    # print(f"Roll: {roll}")
+                    if roll == 7:
+                        game["bankroll"] = game["bankroll"] - game["bet"]
+                        game['NP'] = 1
+                        coming_out = 0
+                        game['bet'] *= 2
+                    elif roll == init_roll:
+                        game["bankroll"] = game["bankroll"] + game["bet"]
+                        game['P'] = 1
+                        coming_out = 0
+                        game['bet'] = bet
+            GAMES.append(game)
+    elif dropdown5.value == 'Strategy 2':
+        while GAMES[-1]['bankroll'] >= GAMES[-1]['bet']:
+            init_roll = np.random.randint(low=1, high=7, size=2).sum()
+            game = {"game": len(GAMES), "bankroll": GAMES[-1]['bankroll'], "bet": float(table_min.value), "P": 0, "NP": 0, "Roll": init_roll}
+            # print(f"Game: {game}")
+            if init_roll in (2,3,12):
+                game["bankroll"] = game["bankroll"] - game["bet"]
+            elif init_roll in (7,11):
+                game["bankroll"] = game["bankroll"] + game["bet"]
+            else:
+                coming_out = init_roll
+                while coming_out == init_roll:
+                    roll = np.random.randint(low=1, high=7, size=2).sum()
+                    # print(f"Roll: {roll}")
+                    if roll == 7:
+                        game["bankroll"] = game["bankroll"] - game["bet"]
+                        game['NP'] = 1
+                        coming_out = 0
+                        game['bet'] *= 2
+                        game['bet'] += 5
+                    elif roll == init_roll:
+                        game["bankroll"] = game["bankroll"] + game["bet"]
+                        game['P'] = 1
+                        coming_out = 0
+                        game['bet'] = bet
+            GAMES.append(game)
+    df = pd.DataFrame.from_records(GAMES).fillna(0)
+    source5.data = dict(x=df['game'].tolist(), y=df['bankroll'].tolist(), z=df['bet'].tolist())
+
+
+roll5.on_click(play5)
+
+
 def reset_window_5():
-    global source5, dropdown5
+    global source5, dropdown5, table_min, table_max, bankroll
     dropdown5.value = 'Strategy 1'
-    plot5.title.text = 'Wheel Party'
-    title5.value = 'Wheel Party'
+    plot5.title.text = 'Monte Carlo Casino'
+    table_max.value = '500'
+    table_min.value = '10'
+    bankroll.value = '1000'
+    title5.value = 'Monte Carlo Casino'
 
 
 reset5.on_click(reset_window_5)
@@ -555,7 +634,7 @@ inputs1 = column(div1, title1, sigma, mu, recompute1, reset1, checkbox1)
 inputs2 = column(div2, title2, num_sample, sample, reset2, data_table2, tot_sample2)
 inputs3 = column(div3, title3, num_sample3, sample3, reset3, data_table3, output3)
 inputs4 = column(title4, num_dice, type_selection4, num_sides, roll4, reset4, data_table4)
-inputs5 = column(title5, dropdown5, reset5)
+inputs5 = column(div5, title5, dropdown5, table_max, table_min, bankroll, roll5, reset5)
 tab1 = row(inputs1, plot1, width=int(phi*400))
 tab2 = row(inputs2, plot2, width=int(phi*400))
 tab3 = row(inputs3, plot3, plot3_below, width=int(phi*400))
@@ -565,7 +644,7 @@ tab1 = Panel(child=tab1, title="Like a Gauss")
 tab2 = Panel(child=tab2, title="Block Party")
 tab3 = Panel(child=tab3, title="Scatter!")
 tab4 = Panel(child=tab4, title="Roll")
-tab5 = Panel(child=tab5, title="Wheel Party")
+tab5 = Panel(child=tab5, title="Monte Carlo Casino")
 tabs = Tabs(tabs=[tab1, tab2, tab3, tab4, tab5])
 
 curdoc().title = "MCC MLC Dashboard"
