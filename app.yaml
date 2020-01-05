@@ -1,2 +1,2 @@
 runtime: python37
-entrypoint: bokeh serve --port=8080 --allow-websocket-origin=* dashboard.py
+entrypoint: bokeh serve --allow-websocket-origin=* dashboard.py
