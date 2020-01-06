@@ -23,4 +23,4 @@ RUN mkdir -p /usr/share/nginx/www/_ah && \
 ADD www/ /usr/share/nginx/www/
 RUN chmod -R a+r /usr/share/nginx/www
 EXPOSE 8080
-CMD bokeh serve dashboard.py --port 8080
+CMD bokeh serve --allow-websocket-origin=* dashboard.py --port 8080
