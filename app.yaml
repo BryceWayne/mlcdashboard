@@ -1,2 +1,4 @@
 runtime: python37
+runtime: custom
+env: flex
 entrypoint: bokeh serve --allow-websocket-origin=* dashboard.py --port 8080
