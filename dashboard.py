@@ -41,7 +41,8 @@ for _ in range(num_dice-1):
 unique4, counts4 = np.unique(x4, return_counts=True)
 source4 = ColumnDataSource(data=dict(label=unique4, value=counts4, x=unique4, y=counts4, z=counts4/counts4.sum()))
 
-source5 = ColumnDataSource(data=dict(x=[], y=[], z=[]))
+source5 = ColumnDataSource(data=dict(x=[], y=[]))
+source5_games = ColumnDataSource(data=dict(a=[], b=[], c=[]))
 
 """
 SETUP PLOTS
@@ -67,7 +68,7 @@ plot4 = figure(plot_height=700, plot_width=int(phi*700), title="Dice Party",
 plot4.vbar(x='label', top='value', source=source4, width=1/phi)
 
 plot5 = figure(plot_height=600, plot_width=int(600*phi), title="Monte Carlo Casino",
-              tools="save", background_fill_color='#FFFFFF')
+              tools="save", background_fill_color='#FFFFFF', y_range=[0, 1000], x_range=[0, 1000])
 plot5.line('x', 'y', source=source5, line_width=1, line_color="navy", legend_label="Bankroll")
 # plot5_bet = figure(plot_height=250, plot_width=int(250*phi), title="Bet Amounts",
 #               tools="save", background_fill_color='#FFFFFF')
@@ -151,9 +152,10 @@ div5 = Div(text="""<p style="border:3px; border-style:solid; border-color:#FF000
                     width=300, height=100)
 title5 = TextInput(title="Enter a title",
                    value='Monte Carlo Casino')
-menu5 = [("Strategy 1", "Strategy 1"), ("Strategy 2", "Strategy 2"), ("Strategy 3", "Strategy 3"),]
+menu5 = [("Martingale", "Strategy 1"), ("Modified Martingale", "Strategy 2"), ("Complex", "Strategy 3")]
 dropdown5 = Dropdown(label="Pick Your Strategy",
                      button_type="warning",
+                     value='Strategy 1',
                      menu=menu5)
 table_min = TextInput(title="Table Min ($)",
                       value='10')
@@ -164,6 +166,16 @@ bankroll = TextInput(title="Bankroll",
 roll5 = Button(label="Roll", button_type="success")
 reset5 = Button(label="Reset",
                 button_type="primary")
+columns5 = [TableColumn(field="a", title="Games Played", formatter=NumberFormatter(text_align='center')),
+            TableColumn(field="b", title="Max Bankroll", formatter=NumberFormatter(text_align='center')),
+            TableColumn(field="c", title="Min Bankroll", formatter=NumberFormatter(text_align='center'))]
+data_table5 =  DataTable(source=source5_games,
+                        columns=columns5,
+                        index_position=None,
+                        fit_columns=True,
+                        width=275,
+                        height=plot5.plot_height,
+                        selectable=False)
 
 
 """
@@ -546,23 +558,39 @@ def update_window_5(attr, new, old):
         dropdown5.value = 'Strategy 1'
     if int(table_max.value) <= int(table_min.value):
         reset_window_5()
+    if int(bankroll.value) <= 0:
+        reset_window_5()
+    reset_window_5()
 
 
-for w in [dropdown5, table_min, table_max, bankroll]:
+for w in [table_min, table_max, bankroll]:
     w.on_change('value', update_window_5)
 
 
+def new_game(attr, new, old):
+    _ = dropdown5.value
+    print(f"{dropdown5.value}")
+    reset_window_5()
+    print(f"{dropdown5.value}")
+    dropdown5.value = _
+    print(f"{dropdown5.value}")
+
+dropdown5.on_change('value', update_window_5)
+
+
 def play5():
-    global source5, table_min, table_max, bankroll
+    global source5, source5_games, table_min, table_max, bankroll
     GAMES = [{"game": 0, "bankroll": float(bankroll.value), "bet": float(table_min.value)}]
     coming_out, bet = 0, float(table_min.value)
+    games_played = source5_games.data['a']
+    maximum_bankroll = source5_games.data['b']
+    minimum_bankroll = source5_games.data['c']
     if dropdown5.value is None:
         dropdown5.value = 'Strategy 1'
     if dropdown5.value == 'Strategy 1':
         while GAMES[-1]['bankroll'] >= GAMES[-1]['bet']:
             init_roll = np.random.randint(low=1, high=7, size=2).sum()
             game = {"game": len(GAMES), "bankroll": GAMES[-1]['bankroll'], "bet": float(table_min.value), "P": 0, "NP": 0, "Roll": init_roll}
-            # print(f"Game: {game}")
             if init_roll in (2,3,12):
                 game["bankroll"] = game["bankroll"] - game["bet"]
             elif init_roll in (7,11):
@@ -571,7 +599,6 @@ def play5():
                 coming_out = init_roll
                 while coming_out == init_roll:
                     roll = np.random.randint(low=1, high=7, size=2).sum()
-                    # print(f"Roll: {roll}")
                     if roll == 7:
                         game["bankroll"] = game["bankroll"] - game["bet"]
                         game['NP'] = 1
@@ -610,7 +637,13 @@ def play5():
                         game['bet'] = bet
             GAMES.append(game)
     df = pd.DataFrame.from_records(GAMES).fillna(0)
+    plot5.x_range.start, plot5.x_range.end = 0, df['game'].max()
+    plot5.y_range.start, plot5.y_range.end = 0, df['bankroll'].max()
     source5.data = dict(x=df['game'].tolist(), y=df['bankroll'].tolist(), z=df['bet'].tolist())
+    games_played.append(df['game'].max())
+    maximum_bankroll.append(df['bankroll'].max())
+    minimum_bankroll.append(df['bankroll'].min())
+    source5_games.data = dict(a=games_played, b=maximum_bankroll, c=minimum_bankroll)
 
 
 roll5.on_click(play5)
@@ -624,6 +657,11 @@ def reset_window_5():
     table_min.value = '10'
     bankroll.value = '1000'
     title5.value = 'Monte Carlo Casino'
+    source5.data = dict(x=[], y=[])
+    source5_games.data = dict(a=[], b=[], c=[])
+    plot5.x_range.start, plot5.x_range.end = 0, 1000
+    plot5.y_range.start, plot5.y_range.end = 0, 1000
+
 
 
 reset5.on_click(reset_window_5)
@@ -639,7 +677,7 @@ tab1 = row(inputs1, plot1, width=int(phi*400))
 tab2 = row(inputs2, plot2, width=int(phi*400))
 tab3 = row(inputs3, plot3, plot3_below, width=int(phi*400))
 tab4 = row(inputs4, plot4, width=int(phi*400))
-tab5 = row(inputs5, plot5, width=int(phi*400))
+tab5 = row(inputs5, plot5, data_table5, width=int(phi*400))
 tab1 = Panel(child=tab1, title="Like a Gauss")
 tab2 = Panel(child=tab2, title="Block Party")
 tab3 = Panel(child=tab3, title="Scatter!")
