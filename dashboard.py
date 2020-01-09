@@ -580,9 +580,10 @@ def play5():
             game = {"game": len(GAMES), "bankroll": GAMES[-1]['bankroll'], "bet": BET, "P": 0, "NP": 0, "Roll": init_roll}
             if init_roll in (2,3,12):
                 game["bankroll"] = game["bankroll"] - pass_bet
-                pass_bet = 2*pass_bet
+                if game['bankroll'] >= 2*pass_bet:
+                    pass_bet = 2*pass_bet
                 if pass_bet > int(table_max.value):
-                            pass_bet = int(table_max.value)
+                    pass_bet = int(table_max.value)
                 game['NP'] = 1
             elif init_roll in (7,11):
                 game["bankroll"] = game["bankroll"] + pass_bet
@@ -594,7 +595,8 @@ def play5():
                     roll = np.random.randint(low=1, high=7, size=2).sum()
                     if roll == 7:
                         game["bankroll"] = game["bankroll"] - pass_bet
-                        pass_bet = 2*pass_bet
+                        if game['bankroll'] >= 2*pass_bet:
+                            pass_bet = 2*pass_bet
                         if pass_bet > int(table_max.value):
                             pass_bet = int(table_max.value)
                         game['NP'] = 1
@@ -614,7 +616,8 @@ def play5():
             game = {"game": len(GAMES), "bankroll": GAMES[-1]['bankroll'], "bet": BET, "P": 0, "NP": 0, "Roll": init_roll}
             if init_roll in (2,3,12):
                 game["bankroll"] = game["bankroll"] - pass_bet
-                pass_bet = 2*pass_bet + 5
+                if game['bankroll'] >= 2*pass_bet + 5:
+                    pass_bet = 2*pass_bet + 5
                 if pass_bet > int(table_max.value):
                     pass_bet = int(table_max.value)
                 game['NP'] = 1
@@ -628,7 +631,8 @@ def play5():
                     roll = np.random.randint(low=1, high=7, size=2).sum()
                     if roll == 7:
                         game["bankroll"] = game["bankroll"] - pass_bet
-                        pass_bet = 2*pass_bet + 5
+                        if game['bankroll'] >= 2*pass_bet + 5:
+                            pass_bet = 2*pass_bet + 5
                         if pass_bet > int(table_max.value):
                             pass_bet = int(table_max.value)
                         game['NP'] = 1
@@ -650,12 +654,14 @@ def play5():
             if init_roll in (2,3,12):
                 game["bankroll"] = game["bankroll"] - pass_bet
                 game["bankroll"] = game["bankroll"] + no_pass_bet
-                pass_bet = 2*pass_bet + 5
+                if game['bankroll'] >= 2*pass_bet + 5 + no_pass_bet:
+                    pass_bet = 2*pass_bet + 5
                 game['NP'] = 1
             elif init_roll in (7,11):
                 game["bankroll"] = game["bankroll"] - no_pass_bet
                 game["bankroll"] = game["bankroll"] + pass_bet
-                no_pass_bet = 2*no_pass_bet + 5
+                if game['bankroll'] >= 2*no_pass_bet + 5 + pass_bet:
+                    no_pass_bet = 2*no_pass_bet + 5
                 game['P'] = 1
             else:
                 coming_out = init_roll
@@ -664,14 +670,16 @@ def play5():
                     if roll == 7:
                         game["bankroll"] = game["bankroll"] - pass_bet
                         game["bankroll"] = game["bankroll"] + no_pass_bet
-                        pass_bet = 2*pass_bet + 5
+                        if game['bankroll'] >= 2*pass_bet + 5 + no_pass_bet:
+                            pass_bet = 2*pass_bet + 5
                         game['NP'] = 1
                         no_pass_bet = int(table_min.value)
                         coming_out = 0
                     elif roll == init_roll:
                         game["bankroll"] = game["bankroll"] - no_pass_bet
                         game["bankroll"] = game["bankroll"] + pass_bet
-                        no_pass_bet = 2*no_pass_bet + 5
+                        if game['bankroll'] >= 2*no_pass_bet + 5 + pass_bet:
+                            no_pass_bet = 2*no_pass_bet + 5
                         game['P'] = 1
                         pass_bet = int(table_min.value)
                         coming_out = 0
