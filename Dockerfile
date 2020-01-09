@@ -1,26 +1,22 @@
-# The standard nginx container just runs nginx. The configuration file added
-# below will be used by nginx.
-FROM nginx
+FROM continuumio/miniconda
 
-# Copy the nginx configuration file. This sets up the behavior of nginx, most
-# importantly, it ensure nginx listens on port 8080. Google App Engine expects
-# the runtime to respond to HTTP requests at port 8080.
-COPY nginx.conf /etc/nginx/nginx.conf
+ENV BK_VERSION=1.4.0
+ENV PY_VERSION=3.7
+ENV NUM_PROCS=4
+ENV BOKEH_RESOURCES=cdn
 
-# create log dir configured in nginx.conf
-RUN mkdir -p /var/log/app_engine
+RUN apt-get install git bash
 
-# Create a simple file to handle heath checks. Health checking can be disabled
-# in app.yaml, but is highly recommended. Google App Engine will send an HTTP
-# request to /_ah/health and any 2xx or 404 response is considered healthy.
-# Because 404 responses are considered healthy, this could actually be left
-# out as nginx will return 404 if the file isn't found. However, it is better
-# to be explicit.
-RUN mkdir -p /usr/share/nginx/www/_ah && \
-    echo "healthy" > /usr/share/nginx/www/_ah/health
+RUN git clone https://github.com/BryceWayne/mlcdashboard.git
+RUN cd mlcdashboard
+RUN conda install --yes --quiet python=${PY_VERSION} pyyaml jinja2 bokeh=${BK_VERSION} numpy "nodejs>=8.8" pandas requests scikit-learn matplotlib lxml
+RUN conda install -c anaconda lxml
+RUN conda clean -ay
 
-# Finally, all static assets.
-ADD www/ /usr/share/nginx/www/
-RUN chmod -R a+r /usr/share/nginx/www
 EXPOSE 8080
-CMD bokeh serve --allow-websocket-origin=* dashboard.py --port 8080
+
+CMD bokeh serve --port 8080 \
+    --allow-websocket-origin="*" \
+#     --num-procs=${NUM_PROCS} \
+#     --index=/index.html \
+    mlcdashboard/dashboard.py
