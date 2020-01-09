@@ -70,9 +70,6 @@ plot4.vbar(x='label', top='value', source=source4, width=1/phi)
 plot5 = figure(plot_height=600, plot_width=int(600*phi), title="Monte Carlo Casino",
               tools="save", background_fill_color='#FFFFFF', y_range=[0, 1000], x_range=[0, 1000])
 plot5.line('x', 'y', source=source5, line_width=1, line_color="navy", legend_label="Bankroll")
-# plot5_bet = figure(plot_height=250, plot_width=int(250*phi), title="Bet Amounts",
-#               tools="save", background_fill_color='#FFFFFF')
-# plot5_bet.scatter('x', 'z', source=source5, radius=2, line_color=None, legend_label="Bet")
 
 """
 SETUP WIDGETS
@@ -554,28 +551,16 @@ reset4.on_click(reset_window_4)
 
 
 def update_window_5(attr, new, old):
+    source5_games.data = dict(a=[], b=[], c=[])
     if dropdown5.value is None:
         dropdown5.value = 'Strategy 1'
-    if int(table_max.value) <= int(table_min.value):
+    if int(table_max.value) <= int(table_min.value) or int(bankroll.value) <= 0:
         reset_window_5()
-    if int(bankroll.value) <= 0:
-        reset_window_5()
-    reset_window_5()
+    play5()
 
 
-for w in [table_min, table_max, bankroll]:
+for w in [table_min, table_max, bankroll, dropdown5]:
     w.on_change('value', update_window_5)
-
-
-def new_game(attr, new, old):
-    _ = dropdown5.value
-    print(f"{dropdown5.value}")
-    reset_window_5()
-    print(f"{dropdown5.value}")
-    dropdown5.value = _
-    print(f"{dropdown5.value}")
-
-dropdown5.on_change('value', update_window_5)
 
 
 def play5():
@@ -588,54 +573,111 @@ def play5():
     if dropdown5.value is None:
         dropdown5.value = 'Strategy 1'
     if dropdown5.value == 'Strategy 1':
-        while GAMES[-1]['bankroll'] >= GAMES[-1]['bet']:
+        pass_bet = int(table_min.value)
+        BET = pass_bet
+        while GAMES[-1]['bankroll'] >= BET:
             init_roll = np.random.randint(low=1, high=7, size=2).sum()
-            game = {"game": len(GAMES), "bankroll": GAMES[-1]['bankroll'], "bet": float(table_min.value), "P": 0, "NP": 0, "Roll": init_roll}
+            game = {"game": len(GAMES), "bankroll": GAMES[-1]['bankroll'], "bet": BET, "P": 0, "NP": 0, "Roll": init_roll}
             if init_roll in (2,3,12):
-                game["bankroll"] = game["bankroll"] - game["bet"]
+                game["bankroll"] = game["bankroll"] - pass_bet
+                pass_bet = 2*pass_bet
+                if pass_bet > int(table_max.value):
+                            pass_bet = int(table_max.value)
+                game['NP'] = 1
             elif init_roll in (7,11):
-                game["bankroll"] = game["bankroll"] + game["bet"]
+                game["bankroll"] = game["bankroll"] + pass_bet
+                pass_bet = int(table_min.value)
+                game['P'] = 1
             else:
                 coming_out = init_roll
                 while coming_out == init_roll:
                     roll = np.random.randint(low=1, high=7, size=2).sum()
                     if roll == 7:
-                        game["bankroll"] = game["bankroll"] - game["bet"]
+                        game["bankroll"] = game["bankroll"] - pass_bet
+                        pass_bet = 2*pass_bet
+                        if pass_bet > int(table_max.value):
+                            pass_bet = int(table_max.value)
                         game['NP'] = 1
                         coming_out = 0
-                        game['bet'] *= 2
                     elif roll == init_roll:
-                        game["bankroll"] = game["bankroll"] + game["bet"]
+                        game["bankroll"] = game["bankroll"] + pass_bet
+                        pass_bet = int(table_min.value)
                         game['P'] = 1
                         coming_out = 0
-                        game['bet'] = bet
+            BET = pass_bet
             GAMES.append(game)
     elif dropdown5.value == 'Strategy 2':
-        while GAMES[-1]['bankroll'] >= GAMES[-1]['bet']:
+        pass_bet = int(table_min.value)
+        BET = pass_bet
+        while GAMES[-1]['bankroll'] >= BET:
             init_roll = np.random.randint(low=1, high=7, size=2).sum()
-            game = {"game": len(GAMES), "bankroll": GAMES[-1]['bankroll'], "bet": float(table_min.value), "P": 0, "NP": 0, "Roll": init_roll}
-            # print(f"Game: {game}")
+            game = {"game": len(GAMES), "bankroll": GAMES[-1]['bankroll'], "bet": BET, "P": 0, "NP": 0, "Roll": init_roll}
             if init_roll in (2,3,12):
-                game["bankroll"] = game["bankroll"] - game["bet"]
+                game["bankroll"] = game["bankroll"] - pass_bet
+                pass_bet = 2*pass_bet + 5
+                if pass_bet > int(table_max.value):
+                    pass_bet = int(table_max.value)
+                game['NP'] = 1
             elif init_roll in (7,11):
-                game["bankroll"] = game["bankroll"] + game["bet"]
+                game["bankroll"] = game["bankroll"] + pass_bet
+                pass_bet = int(table_min.value)
+                game['P'] = 1
             else:
                 coming_out = init_roll
                 while coming_out == init_roll:
                     roll = np.random.randint(low=1, high=7, size=2).sum()
-                    # print(f"Roll: {roll}")
                     if roll == 7:
-                        game["bankroll"] = game["bankroll"] - game["bet"]
+                        game["bankroll"] = game["bankroll"] - pass_bet
+                        pass_bet = 2*pass_bet + 5
+                        if pass_bet > int(table_max.value):
+                            pass_bet = int(table_max.value)
                         game['NP'] = 1
                         coming_out = 0
-                        game['bet'] *= 2
-                        game['bet'] += 5
                     elif roll == init_roll:
-                        game["bankroll"] = game["bankroll"] + game["bet"]
+                        game["bankroll"] = game["bankroll"] + pass_bet
+                        pass_bet = int(table_min.value)
                         game['P'] = 1
                         coming_out = 0
-                        game['bet'] = bet
+            BET = pass_bet
             GAMES.append(game)
+    elif dropdown5.value == 'Strategy 3':
+        pass_bet = int(table_min.value)
+        no_pass_bet = int(table_min.value)
+        BET = pass_bet + no_pass_bet
+        while GAMES[-1]['bankroll'] >= BET:
+            init_roll = np.random.randint(low=1, high=7, size=2).sum()
+            game = {"game": len(GAMES), "bankroll": GAMES[-1]['bankroll'], "bet": BET, "P": 0, "NP": 0, "Roll": init_roll}
+            if init_roll in (2,3,12):
+                game["bankroll"] = game["bankroll"] - pass_bet
+                game["bankroll"] = game["bankroll"] + no_pass_bet
+                pass_bet = 2*pass_bet + 5
+                game['NP'] = 1
+            elif init_roll in (7,11):
+                game["bankroll"] = game["bankroll"] - no_pass_bet
+                game["bankroll"] = game["bankroll"] + pass_bet
+                no_pass_bet = 2*no_pass_bet + 5
+                game['P'] = 1
+            else:
+                coming_out = init_roll
+                while coming_out == init_roll:
+                    roll = np.random.randint(low=1, high=7, size=2).sum()
+                    if roll == 7:
+                        game["bankroll"] = game["bankroll"] - pass_bet
+                        game["bankroll"] = game["bankroll"] + no_pass_bet
+                        pass_bet = 2*pass_bet + 5
+                        game['NP'] = 1
+                        no_pass_bet = int(table_min.value)
+                        coming_out = 0
+                    elif roll == init_roll:
+                        game["bankroll"] = game["bankroll"] - no_pass_bet
+                        game["bankroll"] = game["bankroll"] + pass_bet
+                        no_pass_bet = 2*no_pass_bet + 5
+                        game['P'] = 1
+                        pass_bet = int(table_min.value)
+                        coming_out = 0
+            BET = pass_bet + no_pass_bet
+            GAMES.append(game)
+
     df = pd.DataFrame.from_records(GAMES).fillna(0)
     plot5.x_range.start, plot5.x_range.end = 0, df['game'].max()
     plot5.y_range.start, plot5.y_range.end = 0, df['bankroll'].max()
