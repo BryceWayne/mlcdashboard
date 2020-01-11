@@ -684,7 +684,7 @@ def play5():
                     no_pass_bet = int(table_min.value)
                 pass_bet = int(table_min.value)
 
-        pprint(game)
+        # pprint(game)
         GAMES.append(game)
         game = init_game(GAMES)
 
