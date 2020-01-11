@@ -163,7 +163,7 @@ table_min = TextInput(title="Table Min ($)",
 table_max = TextInput(title="Table Max ($)",
                       value='500')
 bankroll = TextInput(title="Bankroll",
-                     value='1000')
+                     value='100')
 roll5 = Button(label="Roll", button_type="success")
 reset5 = Button(label="Reset",
                 button_type="primary")
@@ -603,46 +603,90 @@ def play5():
     if dropdown5.value is None:
         dropdown5.value = 'Strategy 1'
     if dropdown5.value == 'Strategy 1':
-        game, bank, pass_bet, no_pass_bet = init_game(GAMES), int(bankroll.value), int(table_min.value), 0
-        while 0 < bank:
+        game, bank, pass_bet, no_pass_bet, minimum_bet = init_game(GAMES), int(bankroll.value), int(table_min.value), 0, int(table_min.value)
+    elif dropdown5.value == 'Strategy 2':
+        game, bank, pass_bet, no_pass_bet, minimum_bet = init_game(GAMES), int(bankroll.value), int(table_min.value), 0, int(table_min.value)
+    elif dropdown5.value == 'Strategy 3':
+        game, bank, pass_bet, no_pass_bet, minimum_bet = init_game(GAMES), int(bankroll.value), int(table_min.value), int(table_min.value), 3*int(table_min.value)
+    while 0 < minimum_bet <= bank:
+        roll = roll_dice()
+        if roll in (2, 3, 12):
+            game = loss(game, bank, pass_bet, no_pass_bet, roll, GAMES)
+        elif roll in (7, 11):
+            game = win(game, bank, pass_bet, no_pass_bet, roll, GAMES)
+        else:
+            point = roll
             roll = roll_dice()
-            if roll in (2, 3, 12):
-                game = loss(game, bank, pass_bet, no_pass_bet, roll, GAMES)
-            elif roll in (7, 11):
-                game = win(game, bank, pass_bet, no_pass_bet, roll, GAMES)
-            else:
-                point = roll
+            while roll not in (point, 7):
                 roll = roll_dice()
-                while roll not in (point, 7):
-                    roll = roll_dice()
-                if roll == 7:
-                    game = loss(game, bank, pass_bet, no_pass_bet, point, GAMES)
-                elif roll == point:
-                    game = win(game, bank, pass_bet, no_pass_bet, point, GAMES)
-            
-            bank = game['bankroll']
+            if roll == 7:
+                game = loss(game, bank, pass_bet, no_pass_bet, point, GAMES)
+            elif roll == point:
+                game = win(game, bank, pass_bet, no_pass_bet, point, GAMES)
+
+        bank = game['bankroll']
+        if dropdown5.value == 'Strategy 1':
             if game['NP'] == 1:
-                # print(f'LOSS. Bank: {bank}')
                 if 2*pass_bet < bank and 2*pass_bet < int(table_max.value):
                     pass_bet = 2*pass_bet
-                    # print(f"Current pass bet: {pass_bet}")
                 elif pass_bet < bank and pass_bet < int(table_max.value):
-                    # print(f"Current pass bet: {pass_bet}")
                     pass
                 elif pass_bet > bank:
                     while pass_bet > bank:
                         pass_bet = pass_bet/2
-                    # print(f"Current pass bet: {pass_bet}")
                 else:
                     pass_bet = int(table_min.value)
-                    # print(f"Current pass bet: {pass_bet}")
             elif game['P'] == 1:
-                # print(f'WIN. Bank: {bank}')
                 pass_bet = int(table_min.value)
-            # pprint(game)
-            GAMES.append(game) 
-            game = init_game(GAMES)
-            no_pass_bet = 0
+        elif dropdown5.value == 'Strategy 2':
+            if game['NP'] == 1:
+                if 2*pass_bet + int(table_min.value) < bank and 2*pass_bet + int(table_min.value) < int(table_max.value):
+                    pass_bet = 2*pass_bet + int(table_min.value)
+                elif pass_bet < bank and pass_bet < int(table_max.value):
+                    pass
+                elif pass_bet > bank:
+                    while pass_bet > bank:
+                        if pass_bet % 2 == 0:
+                            pass_bet = pass_bet/2
+                        else:
+                            pass_bet = (pass_bet - 5)/2
+                else:
+                    pass_bet = int(table_min.value)
+            elif game['P'] == 1:
+                pass_bet = int(table_min.value)
+        elif dropdown5.value == 'Strategy 3':
+            if game['NP'] == 1:
+                if 2*pass_bet + int(table_min.value) < bank and 2*pass_bet + int(table_min.value) < int(table_max.value):
+                    pass_bet = 2*pass_bet + int(table_min.value)
+                elif pass_bet < bank and pass_bet < int(table_max.value):
+                    pass
+                elif pass_bet > bank:
+                    while pass_bet > bank:
+                        if pass_bet % 2 == 0:
+                            pass_bet = pass_bet/2
+                        else:
+                            pass_bet = (pass_bet - 5)/2
+                else:
+                    pass_bet = int(table_min.value)
+                no_pass_bet = int(table_min.value)
+            elif game['P'] == 1:
+                if 2*no_pass_bet + int(table_min.value) < bank and 2*no_pass_bet + int(table_min.value) < int(table_max.value):
+                    no_pass_bet = 2*no_pass_bet + int(table_min.value)
+                elif no_pass_bet < bank and no_pass_bet < int(table_max.value):
+                    pass
+                elif no_pass_bet > bank:
+                    while no_pass_bet > bank:
+                        if no_pass_bet % 2 == 0:
+                            no_pass_bet = no_pass_bet/2
+                        else:
+                            no_pass_bet = (no_pass_bet - 5)/2
+                else:
+                    no_pass_bet = int(table_min.value)
+                pass_bet = int(table_min.value)
+
+        pprint(game)
+        GAMES.append(game)
+        game = init_game(GAMES)
 
     df = pd.DataFrame.from_records(GAMES).fillna(0)
     plot5.x_range.start, plot5.x_range.end = 0, df['game'].max()
@@ -667,7 +711,7 @@ def reset_window_5():
     plot5.title.text = 'Monte Carlo Casino'
     table_max.value = '500'
     table_min.value = '10'
-    bankroll.value = '1000'
+    bankroll.value = '100'
     title5.value = 'Monte Carlo Casino'
     source5.data = dict(x=[], y=[])
     source5_games.data = dict(a=[], b=[], c=[], x=[], y=[])
