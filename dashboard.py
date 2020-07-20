@@ -1,109 +1,111 @@
+#main.py
+import pickle, os, time
+from database import database
+from pprint import pprint
 import numpy as np
-from bokeh.io import curdoc, output_file
-from bokeh.layouts import row, column
-from bokeh.models import ColumnDataSource, Range1d
-from bokeh.models.widgets import Slider, TextInput, Tabs, Panel, Button, DataTable, Div, CheckboxGroup
-from bokeh.models.widgets import NumberFormatter, TableColumn, Dropdown, RadioButtonGroup, Select
-from bokeh.plotting import figure
-from bokeh.models import CustomJS, HoverTool, NumeralTickFormatter
-from pprint import pprint
 import pandas as pd
-import requests
-import matplotlib.pyplot as plt
-import datetime
-from sklearn import preprocessing
-from pprint import pprint
+from bokeh.embed import server_document
+from flask import Flask, request, render_template
+import subprocess
+from pycoingecko import CoinGeckoAPI
 
-"""
-DEFAULTS
-"""
-plt.style.use('default')
-PHI = 1.618
-w = 12*60*60*1000 # half day in ms
-"""
-SETUP DATA
-"""
-def get_data(market='Tezos'):
-    z = datetime.datetime.today()
-    z.strftime("%x")
-    temp = str(z).split('-')
-    current_day = temp[0]+temp[1]+temp[2].split(" ")[0]
-    web = requests.get(f"https://coinmarketcap.com/currencies/{market.lower()}/historical-data/?start=20130428&end=" + current_day)
-    dfs = pd.read_html(web.text)
-    data = dfs[2]
-    data = data.iloc[::-1]
-    # print(data)
-    data['Date'] = pd.to_datetime(data['Date'])
-    LENGTH = 30
-    window1, window2 = LENGTH, 7*LENGTH
-    data[f'{window1} Day MA'] = data['Close**'].rolling(window=window1).mean()
-    data[f'{window1} Week MA'] = data['Close**'].rolling(window=window2).mean()
-    data['Risk'] = data[f'{window1} Day MA']/data[f'{window1} Week MA']
-    min_max_scaler = preprocessing.MinMaxScaler()
-    np_scaled = min_max_scaler.fit_transform(data[['Risk']])
-    data['Risk'] = np_scaled
-    return data
 
-df = get_data()
-source = ColumnDataSource(df)
+# app = Flask(__name__)
 
-"""
-SETUP PLOTS
-"""
-intro = Select(title="Cryptocurrency", value="Tezos",
-               options=['Bitcoin', 'Ethereum', 'Litecoin', 'Verge', 'Chainlink', 'Tezos'])
+from bokeh.io import curdoc
+from bokeh.layouts import column, row
+from bokeh.models import Select, ColumnDataSource, TableColumn, DataTable
+from bokeh.models.widgets import Tabs, PreText, Panel
 
-inc = df['Close**'] > df['Open*']
-dec = df['Open*'] > df['Close**']
-price = figure(plot_height=600, plot_width=int(PHI*600), title="Tezos", tools="crosshair,pan,reset,save,wheel_zoom", x_axis_type="datetime")
-price.line(x='Date', y='Close**', line_width=1, line_alpha=0.6, source=source)
-price.xaxis.major_label_orientation = np.pi/4
-price.grid.grid_line_alpha=0.3
-price.segment(df['Date'], df['High'], df['Date'], df['Low'], color="black")
-price.vbar(df['Date'][inc], w, df['Open*'][inc], df['Close**'][inc], fill_color="#D5E1DD", line_color="black")
-price.vbar(df['Date'][dec], w, df['Open*'][dec], df['Close**'][dec], fill_color="#F2583E", line_color="black")
+# stats = PreText(text='', width=500)
+cg = CoinGeckoAPI()
+db = database('test')
+intro = Select(title="Cryptocurrency", value="All",
+               options=['All'])
 
-ma = figure(plot_height=600, plot_width=int(PHI*600), title="Moving Averages", tools="crosshair,pan,reset,save,wheel_zoom", x_axis_type="datetime")
-ma.xaxis.major_label_orientation = np.pi/4
-ma.grid.grid_line_alpha=0.3
-ma.line(x='Date', y="30 Day MA", line_width=1, line_alpha=1, source=source, line_color='red', legend_label='30 Day MA')
-ma.line(x='Date', y="30 Week MA", line_width=1.618, line_alpha=0.6, source=source, line_color='green', legend_label='30 Week MA')
 
-risk = figure(plot_height=600, plot_width=int(PHI*600), title="Risk", tools="crosshair,pan,reset,save,wheel_zoom", x_axis_type="datetime")
-risk.xaxis.major_label_orientation = np.pi/4
-risk.grid.grid_line_alpha=0.3
-risk.line(x='Date', y="Risk", line_width=1, line_alpha=1, source=source, line_color='red', legend_label='Risk')
-risk.line(x=source.data['Date'], y=0.3, source=source, line_width=1, line_alpha=1, line_color='red', legend_label='Risk')
+# @app.route('/')
+# def index():
+#     script = server_document("http://localhost:5006/dashboard")
+#     print(f"Script: {script}")
+#     return render_template('index.html', plot_script=script)
 
-"""
-Setting up widgets
-"""
+# if __name__ == '__main__':
+#     app.run(port='8080')
 
+
+
+
+# print("Ping:", cg.ping())
+
+
+# db.create()
+# coins_list = cg.get_coins_list()
+# db.ids(coins_list)
+# coins_list = cg.get_coins_markets(vs_currency='usd')
+# db.markets(coins_list)
+# print(db.data['ids'])
+# db.save()
+# print(cg.get_coins_markets(vs_currency='usd'))
+# print(cg.get_price(ids='verge', vs_currencies='usd'))
+# print("Supported vs. Curr.:", cg.get_supported_vs_currencies())
+# print("Exchanges List:", cg.get_exchanges_list())
+
+# pprint(db.data['markets'])
+def clean_entry(coin):
+	data, columns = {}, []
+	data['market_cap_rank'] = [coin['market_cap_rank']]
+	columns.append(TableColumn(field='market_cap_rank', title='market_cap_rank'))
+	data['symbol'] = [coin['symbol'].upper()]
+	columns.append(TableColumn(field='symbol', title='Ticker'))
+	data['name'] = [coin['name']]
+	columns.append(TableColumn(field='name', title='Name'))
+	data['current_price'] = [coin['current_price']]
+	columns.append(TableColumn(field='current_price', title='Current Price ($)'))
+	data['ath'] = [coin['ath']]
+	columns.append(TableColumn(field='ath', title='All Time High'))
+	data['atl'] = [coin['atl']]
+	columns.append(TableColumn(field='atl', title='All Time Low'))
+	return data, columns
+
+
+coins_list = cg.get_coins_markets(vs_currency='usd')
+coin = coins_list[0]
+pprint(coin)
+data, columns = clean_entry(coin)
+df = []
+for market in coins_list:
+	df.append(market)
+df = pd.DataFrame(df)
+df = df[['market_cap_rank', 'ath', 'atl', 'name', 'symbol', 'current_price']]
+df.sort_values('market_cap_rank')
+df['symbol'] = df['symbol'].str.upper()
+source = ColumnDataSource(data=df)
+data_table = DataTable(source=source, columns=columns, width=800, height=800, index_position=None, fit_columns=True)
 """
 Set up callbacks
 """
-def callback(attr, old, new):
-    # print(attr, old, new)
-    df = get_data(intro.value)
-    # print("Got data")
-    source.data = df.to_dict('list')
-    # print("Updated Data.")
-    price.title.text = intro.value
+def select_crypto(attr, old, new):
+	coin = intro.value
+	if coin == 'All':
+		df = []
+		for market in db.data['markets']:
+			df.append(market['info'])
+		df = pd.DataFrame(df)
+		df = df[['market_cap_rank', 'ath', 'atl', 'name', 'symbol', 'current_price']]
+		df.sort_values('market_cap_rank')
+		df['symbol'] = df['symbol'].str.upper()
+	else:
+		coin = db.coin_info(coin)
+		data, _ = clean_entry(coin)
+		df = pd.DataFrame(data)
+	source.data = df
 
-intro.on_change('value', callback)
 
-# Set up layouts and add to document
-
-tab0 = row(intro)
-tab0 = Panel(child=tab0, title="Crypto Selection")
-tab1 = row(price, width=int(PHI*400))
-tab1 = Panel(child=tab1, title="Price")
-tab2 = row(ma, width=int(PHI*400))
-tab2 = Panel(child=tab2, title="Moving Averages")
-tab3 = row(risk, width=int(PHI*400))
-tab3 = Panel(child=tab3, title="Risk")
-tabs = Tabs(tabs=[tab0, tab1, tab2, tab3])
-
+intro.on_change('value', select_crypto)
+INTRO = row(intro, data_table)
+INTRO = Panel(child=INTRO, title="Market Info")
+tabs = Tabs(tabs=[INTRO])
 curdoc().title = "CMC Dashboard"
 curdoc().theme = 'caliber'
 curdoc().add_root(tabs)

@@ -20,6 +20,8 @@ RUN conda clean -ay
 
 EXPOSE 8080
 
+CMD python database.py
+
 CMD bokeh serve --port 8080 \
     --allow-websocket-origin="*" \
 <<<<<<< HEAD
