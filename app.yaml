@@ -1,4 +1,9 @@
-runtime: custom
-# runtime: python37
-env: flex
-# entrypoint: bokeh serve --allow-websocket-origin=* dashboard.py --port 8080
+runtime: python37
+entrypoint: gunicorn -b :8080 main:app
+resources:
+    cpu: 1
+    memory_gb: 2
+    disk_size_gb: 10
+
+# runtime_config:
+#   python_version: 3
